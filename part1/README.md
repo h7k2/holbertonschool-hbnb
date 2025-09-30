@@ -98,220 +98,220 @@ Place "*" --> "*" Amenity : includes >
 
 # 🚀 UML Diags HBnB 🚀
 
-## Diagramme de Packages 📦
+## Package Diagram 📦
 
-![Diagramme Package HBnB](https://github.com/user-attachments/assets/43651cd9-d91c-4612-bee2-91298e425f71)
+![HBnB Package Diagram](https://github.com/user-attachments/assets/43651cd9-d91c-4612-bee2-91298e425f71)
 
-### Explication 💡
-Ce diagramme montre comment les différentes couches de l’application HBnB sont organisées et interagissent entre elles via le pattern Facade.
+### Explanation 💡
+This diagram shows how the different layers of the HBnB application are organized and interact with each other via the Facade pattern.
 
-### Lexique 📜
+### Glossary 📜
 
-#### PresentationLayer : Gère l’interface utilisateur et les interactions
-* UserController : Gère les opérations liées aux utilisateurs
-* PlaceController : Gère les opérations liées aux lieux
-* ReviewController : Gère les opérations liées aux avis
-* AmenityController : Gère les opérations liées aux commodités
+#### PresentationLayer: Manages the user interface and interactions
+* UserController: Handles user-related operations
+* PlaceController: Handles place-related operations
+* ReviewController: Handles review-related operations
+* AmenityController: Handles amenity-related operations
 
-#### BusinessLogicLayer : Contient la logique principale de l’application
-* ApplicationFacade : Interface simplifiée pour la couche présentation
+#### BusinessLogicLayer: Contains the main logic of the application
+* ApplicationFacade: Simplified interface for the presentation layer
 
-#### Services : Fournit des services spécifiques à chaque entité
-* UserService : Gère la logique métier des utilisateurs
-* PlaceService : Gère la logique métier des lieux
-* ReviewService : Gère la logique métier des avis
-* AmenityService : Gère la logique métier des commodités
+#### Services: Provides specific services for each entity
+* UserService: Manages business logic for users
+* PlaceService: Manages business logic for places
+* ReviewService: Manages business logic for reviews
+* AmenityService: Manages business logic for amenities
 
-#### PersistenceLayer : Gère le stockage et la récupération des données
-* UserRepository : Accès aux données utilisateur
-* PlaceRepository : Accès aux données des lieux
-* ReviewRepository : Accès aux données des avis
-* AmenityRepository : Accès aux données des commodités
+#### PersistenceLayer: Manages data storage and retrieval
+* UserRepository: Access to user data
+* PlaceRepository: Access to place data
+* ReviewRepository: Access to review data
+* AmenityRepository: Access to amenity data
 
 ---
 
-## Diagramme de Classes 📐
+## Class Diagram 📐
 
-![Diagramme Classes HBnB](https://github.com/user-attachments/assets/033d9c3a-ecbb-4b64-9904-c5d5f7272077)
+![HBnB Class Diagram](https://github.com/user-attachments/assets/033d9c3a-ecbb-4b64-9904-c5d5f7272077)
 
-### Explication 💡
-Le diagramme de classes illustre la structure du système en montrant les classes, leurs attributs, opérations et relations.
+### Explanation 💡
+The class diagram illustrates the system structure by showing classes, their attributes, operations, and relationships.
 
-### Lexique 📜
+### Glossary 📜
 
 #### Classes
-* BaseModel : Classe parente de toutes les entités
-* User : Représente les utilisateurs
-* Place : Représente les hébergements
-* Review : Représente les avis des utilisateurs
-* Amenity : Représente les services ou commodités des lieux
+* BaseModel: Parent class for all entities
+* User: Represents users
+* Place: Represents accommodations
+* Review: Represents user reviews
+* Amenity: Represents features or amenities of places
 
-#### Attributs
-* Caractéristiques de chaque classe (ex : first_name, price, rating)
-* Notés par + pour la visibilité publique
+#### Attributes
+* Characteristics of each class (e.g., first_name, price, rating)
+* Denoted by + for public visibility
 
-#### Méthodes
-* Opérations réalisables sur les instances (ex : register(), update())
-* Notées par + pour la visibilité publique
+#### Methods
+* Operations that can be performed on instances (e.g., register(), update())
+* Also denoted by + for public visibility
 
-#### Relations
-* Héritage : Flèche du fils vers le parent (ex : User vers BaseModel)
-* Association : Ligne entre les classes (ex : User vers Place)
-* Multiplicité : Chiffres ou symboles aux extrémités (ex : "1" et "*")
+#### Relationships
+* Inheritance: Arrow from child to parent (e.g., User to BaseModel)
+* Association: Line between classes (e.g., User to Place)
+* Multiplicity: Numbers or symbols at line ends (e.g., "1" and "*")
 
 ---
 
-## 📈 Diagrammes de Séquence 📈
+## 📈 Sequence Diagrams 📈
 
-### Inscription utilisateur 📈
+### User Registration 📈
 ![alt text][def]
 
-#### Explication 💡
-Ce diagramme illustre le processus d’inscription utilisateur. La requête passe par l’API, est validée par la couche métier, puis enregistrée en base. Les cas d’erreur sont aussi gérés.
+#### Explanation 💡
+This diagram illustrates the user registration process. The request goes through the API, is validated by the business layer, and then saved in the database. Error cases are also handled.
 
-#### Lexique 📜
-* Client : Utilisateur ou application initiant l’inscription
-* API (Présentation) : Point d’entrée recevant la requête
-* Business Logic : Partie qui traite les règles métier
-* Database (Persistance) : Où les données sont stockées
-* POST /users : Méthode HTTP pour l’inscription
-* createUser() : Fonction de création d’utilisateur
-* validateData() : Vérification des données
-* saveUser() : Sauvegarde en base
-* 201 Created : Succès
-* 400 Bad Request : Données invalides
-* 500 Internal Server Error : Erreur serveur
+#### Glossary 📜
+* Client: The user or application initiating registration
+* API (Presentation): Entry point receiving the request
+* Business Logic: Processes business rules
+* Database (Persistence): Where data is stored
+* POST /users: HTTP method for registration
+* createUser(): Function to create a user
+* validateData(): Data validation
+* saveUser(): Save to database
+* 201 Created: Success
+* 400 Bad Request: Invalid data
+* 500 Internal Server Error: Server error
 
 ---
 
-## Création d’un lieu 📈
+## Place Creation 📈
 ![alt text](diag.sequence.lieu.drawio.png)
 
-### Explication 💡
-Ce diagramme illustre la création d’un nouveau lieu. La requête est traitée par l’API, validée, puis enregistrée en base. Les erreurs sont prises en compte.
+### Explanation 💡
+This diagram illustrates the process of creating a new place. The request is processed by the API, validated, and then saved in the database. Error scenarios are handled.
 
-### Lexique 📜
-* Client : Utilisateur initiant la création
-* API (Présentation) : Point d’entrée
-* Business Logic : Règles métier
-* Database (Persistance) : Stockage des lieux
-* POST /places : Méthode HTTP
-* createPlace() : Création du lieu
-* validateData() : Vérification
-* savePlace() : Sauvegarde
-* 201 Created : Succès
-* 400 Bad Request : Données invalides
-* 500 Internal Server Error : Erreur serveur
-* confirmSave() : Confirmation
-* placeCreated : Message de succès
-* validationError : Erreur de validation
-* dbError : Erreur base
+### Glossary 📜
+* Client: User initiating creation
+* API (Presentation): Entry point
+* Business Logic: Business rules
+* Database (Persistence): Place storage
+* POST /places: HTTP method
+* createPlace(): Create place
+* validateData(): Validation
+* savePlace(): Save
+* 201 Created: Success
+* 400 Bad Request: Invalid data
+* 500 Internal Server Error: Server error
+* confirmSave(): Confirmation
+* placeCreated: Success message
+* validationError: Validation error
+* dbError: Database error
 
 ---
 
-## Soumission d’un avis 📈
+## Review Submission 📈
 ![alt text](diag.sequence.avis.drawio.png)
 
-### Explication 💡
-Ce diagramme montre la soumission d’un avis pour un lieu. Il inclut la vérification de l’existence du lieu avant l’enregistrement. Les erreurs sont gérées.
+### Explanation 💡
+This diagram shows the process of submitting a review for a place. It includes verifying the existence of the place before saving the review. Errors are handled.
 
-### Lexique 📜
-* Client : Utilisateur soumettant l’avis
-* API (Présentation) : Point d’entrée
-* Business Logic : Règles métier
-* Database (Persistance) : Stockage
-* POST /places/{id}/reviews : Méthode HTTP
-* createReview() : Création de l’avis
-* validateData() : Vérification
-* verifyPlaceExistence() : Vérification du lieu
-* saveReview() : Sauvegarde
-* 201 Created : Succès
-* 404 Not Found : Lieu inexistant
-* 400 Bad Request : Données invalides
-* 500 Internal Server Error : Erreur serveur
-* placeExists : Confirmation
-* reviewCreated : Succès
-* placeNotFound : Erreur lieu
-* validationError : Erreur validation
-* dbError : Erreur base
+### Glossary 📜
+* Client: User submitting the review
+* API (Presentation): Entry point
+* Business Logic: Business rules
+* Database (Persistence): Storage
+* POST /places/{id}/reviews: HTTP method
+* createReview(): Create review
+* validateData(): Validation
+* verifyPlaceExistence(): Check place existence
+* saveReview(): Save
+* 201 Created: Success
+* 404 Not Found: Place not found
+* 400 Bad Request: Invalid data
+* 500 Internal Server Error: Server error
+* placeExists: Confirmation
+* reviewCreated: Success
+* placeNotFound: Place error
+* validationError: Validation error
+* dbError: Database error
 
 ---
 
-## Récupération de la liste des lieux 📈
+## Retrieval of Place List 📈
 ![alt text](diag.sequence.4.drawio.png)
 
-### Explication 💡
-Ce diagramme illustre la récupération d’une liste de lieux selon des critères. Il montre le traitement à travers les couches et la gestion des cas d’absence de résultats ou d’erreur.
+### Explanation 💡
+This diagram illustrates the retrieval of a list of places based on criteria. It shows processing through layers and handling cases of no results or errors.
 
-### Lexique 📜
-* Client : Utilisateur demandant la liste
-* API (Présentation) : Point d’entrée
-* Business Logic : Règles métier
-* Database (Persistance) : Stockage
-* GET /places : Méthode HTTP
-* searchPlaces() : Recherche
-* retrievePlaces() : Récupération
-* filterPlaces() : Filtrage
-* 200 OK : Succès
-* 204 No Content : Aucun résultat
-* 500 Internal Server Error : Erreur serveur
-* placeList : Liste initiale
-* filteredPlaces : Liste filtrée
-* emptyList : Aucun lieu
-* noPlacesFound : Message d’absence
-* dbError : Erreur base
-* retrievalError : Erreur récupération
-
----
-
-# 📖 Lexique général HBnB 📖
-
-## Concepts clés 🧠
-* Architecture en couches : Séparation en Présentation, Métier, Persistance
-* Pattern Facade : Interface simplifiée entre les couches
-* UML : Langage de modélisation
-* API : Interface de programmation
-* Opérations CRUD : Create, Read, Update, Delete
-
-## Entités principales 🔑
-* User : Utilisateur
-* Place : Hébergement
-* Review : Avis
-* Amenity : Commodité
-* BaseModel : Classe de base commune
-
-## Couches 🧱
-* Présentation : Interaction utilisateur, endpoints API
-* Métier : Logique et modèles
-* Persistance : Stockage et accès aux données
-
-## Types de diagrammes 📈
-* Package : Organisation en packages/couches
-* Classe : Structure des classes et relations
-* Séquence : Interactions temporelles
-
-## Attributs & Méthodes communs 🔧
-* id (UUID) : Identifiant unique
-* created_at : Date de création
-* updated_at : Date de mise à jour
-* create(), update(), delete(), list() : Méthodes principales
-
-## Symboles UML ♾️
-* '<<Interface>>' : Interface
-* '+' : Public
-* '-->' : Association
-* '--|>' : Héritage
-* 'o--' : Composition
-
-## Termes généraux 📚
-* Repository : Accès aux données
-* DTO : Transfert de données
-* ORM : Mapping objet-relationnel
-* Endpoint : URL API
+### Glossary 📜
+* Client: User requesting the list
+* API (Presentation): Entry point
+* Business Logic: Business rules
+* Database (Persistence): Storage
+* GET /places: HTTP method
+* searchPlaces(): Search
+* retrievePlaces(): Retrieve
+* filterPlaces(): Filter
+* 200 OK: Success
+* 204 No Content: No result
+* 500 Internal Server Error: Server error
+* placeList: Initial list
+* filteredPlaces: Filtered list
+* emptyList: No places
+* noPlacesFound: No match message
+* dbError: Database error
+* retrievalError: Retrieval error
 
 ---
 
-Ce lexique et ces diagrammes servent de référence pour comprendre la documentation et l’architecture du projet HBnB.
+# 📖 HBnB General Glossary 📖
+
+## Core Concepts 🧠
+* Layered Architecture: Separation into Presentation, Business, Persistence
+* Facade Pattern: Simplified interface between layers
+* UML: Modeling language
+* API: Programming interface
+* CRUD Operations: Create, Read, Update, Delete
+
+## Key Entities 🔑
+* User: User
+* Place: Accommodation
+* Review: Review
+* Amenity: Amenity
+* BaseModel: Common base class
+
+## Layers 🧱
+* Presentation: User interaction, API endpoints
+* Business: Logic and models
+* Persistence: Data storage and access
+
+## Diagram Types 📈
+* Package: Organization into packages/layers
+* Class: Structure and relationships
+* Sequence: Temporal interactions
+
+## Common Attributes & Methods 🔧
+* id (UUID): Unique identifier
+* created_at: Creation date
+* updated_at: Update date
+* create(), update(), delete(), list(): Main methods
+
+## UML Symbols ♾️
+* '<<Interface>>': Interface
+* '+': Public
+* '-->': Association
+* '--|>': Inheritance
+* 'o--': Composition
+
+## General Terms 📚
+* Repository: Data access
+* DTO: Data transfer
+* ORM: Object-relational mapping
+* Endpoint: API URL
+
+---
+
+This glossary and these diagrams serve as a reference to understand the documentation and architecture of the HBnB project.
 
 [def]: diag.sequence.1.drawio.png
 4. Conclusion
