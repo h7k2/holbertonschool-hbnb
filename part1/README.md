@@ -164,7 +164,9 @@ The class diagram illustrates the system structure by showing classes, their att
 ## 📈 Sequence Diagrams 📈
 
 ### User Registration 📈
-![alt text][def]
+
+<img width="906" height="1115" alt="user registration drawio" src="https://github.com/user-attachments/assets/cbe0c65b-02e1-43c8-9ff1-c0f5f83ebeb1" />
+
 
 #### Explanation 💡
 This diagram illustrates the user registration process. The request goes through the API, is validated by the business layer, and then saved in the database. Error cases are also handled.
