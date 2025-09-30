@@ -186,7 +186,8 @@ This diagram illustrates the user registration process. The request goes through
 
 ## Place Creation 📈
 
-<img width="801" height="802" alt="diag sequence lieu drawio" src="https://github.com/user-attachments/assets/71088bc1-34d5-4556-b09f-8e2b416c9e52" />
+<img width="943" height="927" alt="DIAG POST PLACE drawio" src="https://github.com/user-attachments/assets/b9c7e95e-b5ec-42ab-95f0-f4fe460add88" />
+
 
 ### Explanation 💡
 This diagram illustrates the process of creating a new place. The request is processed by the API, validated, and then saved in the database. Error scenarios are handled.
