@@ -210,7 +210,9 @@ This diagram illustrates the process of creating a new place. The request is pro
 ---
 
 ## Review Submission 📈
-![alt text](diag.sequence.avis.drawio.png)
+
+<img width="1054" height="1364" alt="Creation of a Place drawio" src="https://github.com/user-attachments/assets/d2f7b15f-d3b5-4d0f-98ca-71e27d3eddb8" />
+
 
 ### Explanation 💡
 This diagram shows the process of submitting a review for a place. It includes verifying the existence of the place before saving the review. Errors are handled.
@@ -238,7 +240,8 @@ This diagram shows the process of submitting a review for a place. It includes v
 ---
 
 ## Retrieval of Place List 📈
-![alt text](diag.sequence.4.drawio.png)
+
+<img width="961" height="1256" alt="trouber un lieu drawio" src="https://github.com/user-attachments/assets/12606f52-d79e-4cfa-b881-1b76176a7896" />
 
 ### Explanation 💡
 This diagram illustrates the retrieval of a list of places based on criteria. It shows processing through layers and handling cases of no results or errors.
