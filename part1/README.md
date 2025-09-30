@@ -95,232 +95,223 @@ Place "*" --> "*" Amenity : includes >
 - **User** : Représente le client, avec email, mot de passe et opérations de gestion de compte.
 - **Place** : Annonce créée par un utilisateur, avec localisation et prix.
 - **Review** : Relie un utilisateur à un lieu avec une note et un commentaire.
-- **Amenity** : Caractéristique supplémentaire associée à un lieu (Wi-Fi, piscine, etc.).
-- **Relations** :
-    - Un utilisateur possède plusieurs lieux.
-    - Un utilisateur peut écrire plusieurs avis.
-    - Un lieu peut avoir plusieurs avis et plusieurs commodités.
+
+# 🚀 UML Diags HBnB 🚀
+
+## Diagramme de Packages 📦
+
+![Diagramme Package HBnB](https://github.com/user-attachments/assets/43651cd9-d91c-4612-bee2-91298e425f71)
+
+### Explication 💡
+Ce diagramme montre comment les différentes couches de l’application HBnB sont organisées et interagissent entre elles via le pattern Facade.
+
+### Lexique 📜
+
+#### PresentationLayer : Gère l’interface utilisateur et les interactions
+* UserController : Gère les opérations liées aux utilisateurs
+* PlaceController : Gère les opérations liées aux lieux
+* ReviewController : Gère les opérations liées aux avis
+* AmenityController : Gère les opérations liées aux commodités
+
+#### BusinessLogicLayer : Contient la logique principale de l’application
+* ApplicationFacade : Interface simplifiée pour la couche présentation
+
+#### Services : Fournit des services spécifiques à chaque entité
+* UserService : Gère la logique métier des utilisateurs
+* PlaceService : Gère la logique métier des lieux
+* ReviewService : Gère la logique métier des avis
+* AmenityService : Gère la logique métier des commodités
+
+#### PersistenceLayer : Gère le stockage et la récupération des données
+* UserRepository : Accès aux données utilisateur
+* PlaceRepository : Accès aux données des lieux
+* ReviewRepository : Accès aux données des avis
+* AmenityRepository : Accès aux données des commodités
 
 ---
 
-## 3. Diagrammes de séquence pour les appels API
+## Diagramme de Classes 📐
 
-### 3.1 Inscription utilisateur
-```mermaid
-sequenceDiagram
-participant User
-participant API
-participant BusinessLogic
-participant Database
+![Diagramme Classes HBnB](https://github.com/user-attachments/assets/033d9c3a-ecbb-4b64-9904-c5d5f7272077)
 
-User->>API: Register request (name, email, password)
-API->>BusinessLogic: Validate and create User
-BusinessLogic->>Database: Insert User record
-Database-->>BusinessLogic: Success
-BusinessLogic-->>API: User object
-API-->>User: Registration success response
-```
+### Explication 💡
+Le diagramme de classes illustre la structure du système en montrant les classes, leurs attributs, opérations et relations.
 
-### 3.2 Création d’un lieu
-```mermaid
-sequenceDiagram
-participant User
-participant API
-participant BusinessLogic
-participant Database
+### Lexique 📜
 
-User->>API: Create Place request
-API->>BusinessLogic: Validate request and create Place
-BusinessLogic->>Database: Insert Place record
-Database-->>BusinessLogic: Success
-BusinessLogic-->>API: Place object
-API-->>User: Place creation success response
-```
+#### Classes
+* BaseModel : Classe parente de toutes les entités
+* User : Représente les utilisateurs
+* Place : Représente les hébergements
+* Review : Représente les avis des utilisateurs
+* Amenity : Représente les services ou commodités des lieux
 
-### 3.3 Soumission d’un avis
-```mermaid
-sequenceDiagram
-participant User
-participant API
-participant BusinessLogic
-participant Database
+#### Attributs
+* Caractéristiques de chaque classe (ex : first_name, price, rating)
+* Notés par + pour la visibilité publique
 
-User->>API: Submit Review request
-API->>BusinessLogic: Validate and create Review
-BusinessLogic->>Database: Insert Review record
-Database-->>BusinessLogic: Success
-BusinessLogic-->>API: Review object
-API-->>User: Review submission success response
-```
+#### Méthodes
+* Opérations réalisables sur les instances (ex : register(), update())
+* Notées par + pour la visibilité publique
 
-### 3.4 Récupération de la liste des lieux
-```mermaid
-sequenceDiagram
-participant User
-participant API
-participant BusinessLogic
-participant Database
-
-User->>API: Request list of Places
-API->>BusinessLogic: Fetch places by criteria
-BusinessLogic->>Database: Query Places
-Database-->>BusinessLogic: Place results
-BusinessLogic-->>API: Place list
-API-->>User: Return Place list (JSON)
-```
-
-**Explications :**
-Chaque diagramme illustre le cheminement d’une requête depuis l’utilisateur jusqu’à la base de données, en passant par les différentes couches. Cela permet de visualiser la répartition des responsabilités et le flux d’information.
+#### Relations
+* Héritage : Flèche du fils vers le parent (ex : User vers BaseModel)
+* Association : Ligne entre les classes (ex : User vers Place)
+* Multiplicité : Chiffres ou symboles aux extrémités (ex : "1" et "*")
 
 ---
 
-## 4. Conclusion
+## 📈 Diagrammes de Séquence 📈
 
-Ce document présente l’architecture, les entités principales et le fonctionnement des appels API du projet HBnB. Il sert de référence pour l’implémentation et la compréhension du système.
-Presentation Layer: Provides API endpoints and services to external clients. All calls pass through the Facade, which hides the complexity of the underlying system.
+### Inscription utilisateur 📈
+![alt text][def]
 
-Business Logic Layer: Contains the main entities and business rules (validation, relationships, constraints).
+#### Explication 💡
+Ce diagramme illustre le processus d’inscription utilisateur. La requête passe par l’API, est validée par la couche métier, puis enregistrée en base. Les cas d’erreur sont aussi gérés.
 
-Persistence Layer: Provides repositories or DAOs to manage database communication.
+#### Lexique 📜
+* Client : Utilisateur ou application initiant l’inscription
+* API (Présentation) : Point d’entrée recevant la requête
+* Business Logic : Partie qui traite les règles métier
+* Database (Persistance) : Où les données sont stockées
+* POST /users : Méthode HTTP pour l’inscription
+* createUser() : Fonction de création d’utilisateur
+* validateData() : Vérification des données
+* saveUser() : Sauvegarde en base
+* 201 Created : Succès
+* 400 Bad Request : Données invalides
+* 500 Internal Server Error : Erreur serveur
 
-The Facade Pattern ensures that the Presentation Layer only interacts with a single entry point into the Business Logic, simplifying communication.
+---
 
-2. Business Logic Layer – Class Diagram
-Diagram
-mermaid
-Copier le code
-classDiagram
-class User {
-    +UUID id
-    +String name
-    +String email
-    +String password
-    +Date created_at
-    +Date updated_at
-    +create()
-    +update()
-}
+## Création d’un lieu 📈
+![alt text](diag.sequence.lieu.drawio.png)
 
-class Place {
-    +UUID id
-    +String name
-    +String description
-    +String location
-    +Float price
-    +Date created_at
-    +Date updated_at
-    +create()
-    +update()
-}
+### Explication 💡
+Ce diagramme illustre la création d’un nouveau lieu. La requête est traitée par l’API, validée, puis enregistrée en base. Les erreurs sont prises en compte.
 
-class Review {
-    +UUID id
-    +String text
-    +Integer rating
-    +Date created_at
-    +Date updated_at
-    +create()
-    +update()
-}
+### Lexique 📜
+* Client : Utilisateur initiant la création
+* API (Présentation) : Point d’entrée
+* Business Logic : Règles métier
+* Database (Persistance) : Stockage des lieux
+* POST /places : Méthode HTTP
+* createPlace() : Création du lieu
+* validateData() : Vérification
+* savePlace() : Sauvegarde
+* 201 Created : Succès
+* 400 Bad Request : Données invalides
+* 500 Internal Server Error : Erreur serveur
+* confirmSave() : Confirmation
+* placeCreated : Message de succès
+* validationError : Erreur de validation
+* dbError : Erreur base
 
-class Amenity {
-    +UUID id
-    +String name
-    +Date created_at
-    +Date updated_at
-}
+---
 
-User "1" --> "*" Place : owns >
-User "1" --> "*" Review : writes >
-Place "1" --> "*" Review : has >
-Place "*" --> "*" Amenity : includes >
-Explanation
-User: Represents the customer, with attributes like email, password, and operations for account management.
+## Soumission d’un avis 📈
+![alt text](diag.sequence.avis.drawio.png)
 
-Place: Represents listings created by users, with attributes like location and price.
+### Explication 💡
+Ce diagramme montre la soumission d’un avis pour un lieu. Il inclut la vérification de l’existence du lieu avant l’enregistrement. Les erreurs sont gérées.
 
-Review: Links users to places with ratings and comments.
+### Lexique 📜
+* Client : Utilisateur soumettant l’avis
+* API (Présentation) : Point d’entrée
+* Business Logic : Règles métier
+* Database (Persistance) : Stockage
+* POST /places/{id}/reviews : Méthode HTTP
+* createReview() : Création de l’avis
+* validateData() : Vérification
+* verifyPlaceExistence() : Vérification du lieu
+* saveReview() : Sauvegarde
+* 201 Created : Succès
+* 404 Not Found : Lieu inexistant
+* 400 Bad Request : Données invalides
+* 500 Internal Server Error : Erreur serveur
+* placeExists : Confirmation
+* reviewCreated : Succès
+* placeNotFound : Erreur lieu
+* validationError : Erreur validation
+* dbError : Erreur base
 
-Amenity: Represents additional features (e.g., Wi-Fi, pool) associated with places.
+---
 
-Relationships:
+## Récupération de la liste des lieux 📈
+![alt text](diag.sequence.4.drawio.png)
 
-A User can own multiple Places.
+### Explication 💡
+Ce diagramme illustre la récupération d’une liste de lieux selon des critères. Il montre le traitement à travers les couches et la gestion des cas d’absence de résultats ou d’erreur.
 
-A User can write multiple Reviews.
+### Lexique 📜
+* Client : Utilisateur demandant la liste
+* API (Présentation) : Point d’entrée
+* Business Logic : Règles métier
+* Database (Persistance) : Stockage
+* GET /places : Méthode HTTP
+* searchPlaces() : Recherche
+* retrievePlaces() : Récupération
+* filterPlaces() : Filtrage
+* 200 OK : Succès
+* 204 No Content : Aucun résultat
+* 500 Internal Server Error : Erreur serveur
+* placeList : Liste initiale
+* filteredPlaces : Liste filtrée
+* emptyList : Aucun lieu
+* noPlacesFound : Message d’absence
+* dbError : Erreur base
+* retrievalError : Erreur récupération
 
-A Place can have multiple Reviews.
+---
 
-A Place can have multiple Amenities.
+# 📖 Lexique général HBnB 📖
 
-3. Sequence Diagrams – API Calls
-3.1 User Registration
-mermaid
-Copier le code
-sequenceDiagram
-participant User
-participant API
-participant BusinessLogic
-participant Database
+## Concepts clés 🧠
+* Architecture en couches : Séparation en Présentation, Métier, Persistance
+* Pattern Facade : Interface simplifiée entre les couches
+* UML : Langage de modélisation
+* API : Interface de programmation
+* Opérations CRUD : Create, Read, Update, Delete
 
-User->>API: Register request (name, email, password)
-API->>BusinessLogic: Validate and create User
-BusinessLogic->>Database: Insert User record
-Database-->>BusinessLogic: Success
-BusinessLogic-->>API: User object
-API-->>User: Registration success response
-3.2 Place Creation
-mermaid
-Copier le code
-sequenceDiagram
-participant User
-participant API
-participant BusinessLogic
-participant Database
+## Entités principales 🔑
+* User : Utilisateur
+* Place : Hébergement
+* Review : Avis
+* Amenity : Commodité
+* BaseModel : Classe de base commune
 
-User->>API: Create Place request
-API->>BusinessLogic: Validate request and create Place
-BusinessLogic->>Database: Insert Place record
-Database-->>BusinessLogic: Success
-BusinessLogic-->>API: Place object
-API-->>User: Place creation success response
-3.3 Review Submission
-mermaid
-Copier le code
-sequenceDiagram
-participant User
-participant API
-participant BusinessLogic
-participant Database
+## Couches 🧱
+* Présentation : Interaction utilisateur, endpoints API
+* Métier : Logique et modèles
+* Persistance : Stockage et accès aux données
 
-User->>API: Submit Review request
-API->>BusinessLogic: Validate and create Review
-BusinessLogic->>Database: Insert Review record
-Database-->>BusinessLogic: Success
-BusinessLogic-->>API: Review object
-API-->>User: Review submission success response
-3.4 Fetching a List of Places
-mermaid
-Copier le code
-sequenceDiagram
-participant User
-participant API
-participant BusinessLogic
-participant Database
+## Types de diagrammes 📈
+* Package : Organisation en packages/couches
+* Classe : Structure des classes et relations
+* Séquence : Interactions temporelles
 
-User->>API: Request list of Places
-API->>BusinessLogic: Fetch places by criteria
-BusinessLogic->>Database: Query Places
-Database-->>BusinessLogic: Place results
-BusinessLogic-->>API: Place list
-API-->>User: Return Place list (JSON)
+## Attributs & Méthodes communs 🔧
+* id (UUID) : Identifiant unique
+* created_at : Date de création
+* updated_at : Date de mise à jour
+* create(), update(), delete(), list() : Méthodes principales
+
+## Symboles UML ♾️
+* '<<Interface>>' : Interface
+* '+' : Public
+* '-->' : Association
+* '--|>' : Héritage
+* 'o--' : Composition
+
+## Termes généraux 📚
+* Repository : Accès aux données
+* DTO : Transfert de données
+* ORM : Mapping objet-relationnel
+* Endpoint : URL API
+
+---
+
+Ce lexique et ces diagrammes servent de référence pour comprendre la documentation et l’architecture du projet HBnB.
+
+[def]: diag.sequence.1.drawio.png
 4. Conclusion
-This document outlines the architecture and design of the HBnB application:
-
-High-Level Package Diagram shows the layered structure and communication via the Facade Pattern.
-
-Business Logic Layer Class Diagram details the entities, their attributes, methods, and relationships.
-
-Sequence Diagrams provide a step-by-step representation of how API calls flow through the system.
-
-This documentation will serve as the blueprint for the project’s implementation and as a reference guide for developers.
