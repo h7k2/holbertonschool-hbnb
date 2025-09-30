@@ -318,7 +318,7 @@ This diagram illustrates the retrieval of a list of places based on criteria. It
 
 ---
 
-This glossary and these diagrams serve as a reference to understand the documentation and architecture of the HBnB project.
-
 [def]: diag.sequence.1.drawio.png
 4. Conclusion
+
+This glossary and these diagrams serve as a reference to understand the documentation and architecture of the HBnB project.
