@@ -1,5 +1,7 @@
 # HBnB – Documentation Technique
 
+<img width="1200" height="675" alt="644b94071ceca7d51d139d6f_Holberton actual digital school (1)" src="https://github.com/user-attachments/assets/5f9ebcd6-73b9-46ea-ae61-c6d3f03ea67e" />
+
 ## Introduction
 Le projet **HBnB** est une application web de location de logements, conçue selon une architecture en trois couches. Ce document technique compile tous les diagrammes et explications nécessaires pour guider l’implémentation du projet.
 
