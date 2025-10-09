@@ -3,13 +3,13 @@
 <img width="1200" height="675" alt="644b94071ceca7d51d139d6f_Holberton actual digital school (1)" src="https://github.com/user-attachments/assets/5f9ebcd6-73b9-46ea-ae61-c6d3f03ea67e" />
 
 ## Introduction
-Le projet **HBnB** est une application web de location de logements, conçue selon une architecture en trois couches. Ce document technique compile tous les diagrammes et explications nécessaires pour guider l’implémentation du projet.
+The **HBnB** project is a web-based housing rental application designed using a three-layer architecture. This technical document compiles all the diagrams and explanations needed to guide the project's implementation.
 
 ---
 
-## 1. Architecture générale (Package Diagram)
+## 1. General Architecture (Package Diagram)
 
-Ce diagramme illustre la structure en trois couches de l’application et la communication via le pattern Facade.
+This diagram illustrates the three-layer structure of the application and communication via the Facade pattern.
 
 ```mermaid
 classDiagram
@@ -33,17 +33,17 @@ PresentationLayer --> BusinessLogicLayer : via Facade
 BusinessLogicLayer --> PersistenceLayer : Database Operations
 ```
 
-**Explications :**
-- **Presentation Layer** : Fournit les endpoints API et les services aux clients externes. Toutes les requêtes passent par le Facade, qui masque la complexité du système.
-- **Business Logic Layer** : Contient les entités principales et les règles métier (validation, relations, contraintes).
-- **Persistence Layer** : Gère la communication avec la base de données via des repositories ou DAOs.
-- **Pattern Facade** : Simplifie la communication entre la couche présentation et la logique métier.
+**Explanations:**
+- **Presentation Layer**: Provides API endpoints and services to external clients. All requests pass through the Facade, which hides the system's complexity.
+- **Business Logic Layer**: Contains the core entities and business rules (validation, relationships, constraints).
+- **Persistence Layer**: Manages communication with the database via repositories or DAOs.
+- **Pattern Facade**: Simplifies communication between the presentation layer and business logic.
 
 ---
 
-## 2. Diagramme de classes détaillé (Business Logic Layer)
+## 2. Detailed Class Diagram (Business Logic Layer)
 
-Ce diagramme présente les entités principales, leurs attributs, méthodes et relations.
+This diagram shows the main entities, their attributes, methods and relationships.
 
 ```mermaid
 classDiagram
@@ -93,10 +93,10 @@ Place "1" --> "*" Review : has >
 Place "*" --> "*" Amenity : includes >
 ```
 
-**Explications :**
-- **User** : Représente le client, avec email, mot de passe et opérations de gestion de compte.
-- **Place** : Annonce créée par un utilisateur, avec localisation et prix.
-- **Review** : Relie un utilisateur à un lieu avec une note et un commentaire.
+**Explanations:**
+- **User**: Represents the customer, with email, password, and account management options.
+- **Place**: Listing created by a user, with location and price.
+- **Review**: Links a user to a place with a rating and comment.
 
 # 🚀 UML Diags HBnB 🚀
 
