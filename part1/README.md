@@ -328,4 +328,6 @@ This glossary and these diagrams serve as a reference to understand the document
 <img width="1536" height="1024" alt="636e77fd-eff5-48b8-a2b9-038c198d99e8" src="https://github.com/user-attachments/assets/bf031f39-81a7-40cc-8610-9eaf5546e579" />
 
 
-AUTHORS: @AZLADJI ZACCARIA ; @HEYTEM KEDDOUS
+AUTHORS: 
+https://github.com/h7k2
+https://github.com/zoulouhh
