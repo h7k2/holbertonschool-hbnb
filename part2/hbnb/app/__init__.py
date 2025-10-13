@@ -5,3 +5,17 @@ def create_app():
     app = Flask(__name__)
     app.config.setdefault("RESTX_MASK_SWAGGER", False)
     app.config.setdefault("ERROR_404_HELP", False)
+
+    api = Api(
+        app,
+        version="1.0",
+        title="HBnB API",
+        description="HBnB Application API",
+        doc="/api/v1/",
+    )
+
+    @app.get("/health")
+    def healthcheck():
+        return {"status": "ok", "service": "hbnb", "version": "1.0"}
+
+    return app
