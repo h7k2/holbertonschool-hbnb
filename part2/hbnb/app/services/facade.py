@@ -14,7 +14,7 @@ class HBnBFacade:
         self.review_repo = review_repo or InMemoryRepository()
         self.amenity_repo = amenity_repo or InMemoryRepository()
 
-
+# user
     def create_user(self, user_data: Dict[str, Any]) -> Any:
         raise NotImplementedError
 
@@ -27,6 +27,20 @@ class HBnBFacade:
     def update_user(self, user_id: str, patch: Dict[str, Any]) -> Optional[Any]:
         raise NotImplementedError
 
+# amenity
+    def create_amenity(self, amenity_data: Dict[str, Any]) -> Any:
+        raise NotImplementedError
+
+    def get_amenity(self, amenity_id: str) -> Optional[Any]:
+        raise NotImplementedError
+
+    def list_amenities(self) -> List[Any]:
+        raise NotImplementedError
+
+    def update_amenity(self, amenity_id: str, patch: Dict[str, Any]) -> Optional[Any]:
+        raise NotImplementedError
+    
+    
     # Placeholder method for fetching a place by ID
     def get_place(self, place_id):
         # Logic will be implemented in later tasks
