@@ -1,0 +1,37 @@
+holbertonschool-hbnb/
+└── part2/
+    ├── app.py                           # Point d’entrée Flask
+    ├── requirements.txt                 # Flask, flask-restx, etc.
+    │
+    ├── presentation/                    # API (flask-restx)
+    │   ├── __init__.py
+    │   ├── api.py                       # création Api(), namespaces, docs
+    │   ├── users_endpoints.py
+    │   ├── amenities_endpoints.py
+    │   ├── places_endpoints.py
+    │   └── reviews_endpoints.py
+    │
+    ├── business_logic/                  # Modèles + logique métier
+    │   ├── __init__.py
+    │   ├── base_model.py
+    │   ├── user.py
+    │   ├── amenity.py
+    │   ├── place.py
+    │   └── review.py
+    │
+    ├── persistence/                     # Persistance (mémoire pour Part 2)
+    │   ├── __init__.py
+    │   └── repository.py                # InMemoryRepository<T>
+    │
+    ├── facade/                          # Façade = pont API ↔ BL ↔ Repo
+    │   ├── __init__.py
+    │   └── hbnb_facade.py
+    │
+    ├── tests/                           # Tests (unit + cURL scripts)
+    │   ├── __init__.py
+    │   ├── test_users.py
+    │   ├── test_amenities.py
+    │   ├── test_places.py
+    │   └── test_reviews.py
+    │
+    └── README.md
