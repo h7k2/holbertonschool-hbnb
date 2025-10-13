@@ -1,1 +1,24 @@
+# Environnements virtuels
+.venv/
 venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+
+# Build / dist
+build/
+dist/
+
+# Éditeurs/OS (optionnel)
+.vscode/
+.idea/
+.DS_Store
