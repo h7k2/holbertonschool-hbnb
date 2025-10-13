@@ -14,10 +14,18 @@ class HBnBFacade:
         self.review_repo = review_repo or InMemoryRepository()
         self.amenity_repo = amenity_repo or InMemoryRepository()
 
-    # Placeholder method for creating a user
-    def create_user(self, user_data):
-        # Logic will be implemented in later tasks
-        pass
+
+    def create_user(self, user_data: Dict[str, Any]) -> Any:
+        raise NotImplementedError
+
+    def get_user(self, user_id: str) -> Optional[Any]:
+        raise NotImplementedError
+
+    def list_users(self) -> List[Any]:
+        raise NotImplementedError
+
+    def update_user(self, user_id: str, patch: Dict[str, Any]) -> Optional[Any]:
+        raise NotImplementedError
 
     # Placeholder method for fetching a place by ID
     def get_place(self, place_id):
