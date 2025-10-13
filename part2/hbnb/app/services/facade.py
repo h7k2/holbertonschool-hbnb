@@ -69,8 +69,6 @@ class HBnBFacade:
     def delete_review(self, review_id: str) -> None:
         raise NotImplementedError
 
-
-    # Placeholder method for fetching a place by ID
-    def get_place(self, place_id):
-        # Logic will be implemented in later tasks
-        pass
+# serialization
+    def place_with_related(self, place_id: str) -> Dict[str, Any]:
+        raise NotImplementedError
