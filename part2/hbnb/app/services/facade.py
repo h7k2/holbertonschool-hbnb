@@ -40,7 +40,21 @@ class HBnBFacade:
     def update_amenity(self, amenity_id: str, patch: Dict[str, Any]) -> Optional[Any]:
         raise NotImplementedError
     
+# place
+    def create_place(self, place_data: Dict[str, Any]) -> Any:
+        raise NotImplementedError
+
+    def get_place(self, place_id: str) -> Optional[Any]:
+        raise NotImplementedError
+
+    def list_places(self) -> List[Any]:
+        raise NotImplementedError
+
+    def update_place(self, place_id: str, patch: Dict[str, Any]) -> Optional[Any]:
+        raise NotImplementedError
+
     
+
     # Placeholder method for fetching a place by ID
     def get_place(self, place_id):
         # Logic will be implemented in later tasks
