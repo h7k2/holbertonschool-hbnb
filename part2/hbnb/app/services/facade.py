@@ -53,7 +53,22 @@ class HBnBFacade:
     def update_place(self, place_id: str, patch: Dict[str, Any]) -> Optional[Any]:
         raise NotImplementedError
 
-    
+#review   
+    def create_review(self, review_data: Dict[str, Any]) -> Any:
+        raise NotImplementedError
+
+    def get_review(self, review_id: str) -> Optional[Any]:
+        raise NotImplementedError
+
+    def list_reviews(self, place_id: Optional[str] = None) -> List[Any]:
+        raise NotImplementedError
+
+    def update_review(self, review_id: str, patch: Dict[str, Any]) -> Optional[Any]:
+        raise NotImplementedError
+
+    def delete_review(self, review_id: str) -> None:
+        raise NotImplementedError
+
 
     # Placeholder method for fetching a place by ID
     def get_place(self, place_id):
