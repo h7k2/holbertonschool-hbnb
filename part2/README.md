@@ -1,249 +1,177 @@
-🏠 HBnB – Part 2: Business Logic and API Endpoints
+# 🏠 HBNB - Holberton BnB
 
-📖 Introduction
+## 🎯 Project Overview
+RESTful API for a Bed and Breakfast service built with Flask, implementing clean architecture patterns.
 
-This part of the HBnB Evolution project marks the transition from design (Part 1) to implementation.
-Here, you will bring your documented architecture to life by developing the Business Logic Layer and the Presentation Layer (API) using Python, Flask, and flask-restx.
-
-The goal is to implement the core functionality of the application: creating, reading, updating, and managing the main entities — Users, Places, Amenities, and Reviews — while following the principles of clean architecture and RESTful API design.
-
-⚠️ Note: JWT authentication and role-based access control will be implemented in Part 3.
-In this parZEt, data is stored in an in-memory repository, which will later be replaced by a database.
-
-🎯 Objectives
-
-By the end of this project, you will be able to:
-
-🧩 1. Project Setup
-
-Structure a Python application following modular architecture best practices.
-
-Create separate packages for:
-
-Presentation Layer (Flask API)
-
-Business Logic Layer (Core entities and logic)
-
-Persistence Layer (In-memory repository, prepared for future SQLAlchemy integration)
-
-Prepare the Facade Pattern for communication between layers.
-
-⚙️ 2. Business Logic Layer
-
-Implement core classes and relationships:
-
-User, Place, Review, and Amenity
-
-Manage entity relationships (e.g., a User owns multiple Places).
-
-Validate attributes (e.g., required fields, data types).
-
-Provide methods for creation, update, and relationship management.
-
-🌐 3. RESTful API Endpoints
-
-Build a Flask + flask-restx API exposing CRUD operations:
-
-POST, GET, PUT (no DELETE yet for users, places, amenities)
-
-Full CRUD for Review
-
-Return JSON responses with proper status codes and validation errors.
-
-Serialize data, including nested/related fields (e.g., owner details inside a Place).
-
-🧪 4. Testing and Validation
-
-Test endpoints using cURL or Postman.
-
-Validate input/output formats.
-
-Generate Swagger documentation automatically from flask-restx.
-
-Write unit tests using unittest or pytest.
-
-🏗️ Project Structure
-holbertonschool-hbnb/
-│
-├── part2/
-│   ├── app.py                       # Flask entry point
-│   │
-│   ├── presentation/                # Presentation Layer (API)
-│   │   ├── __init__.py
-│   │   ├── api_namespace.py
-│   │   ├── users_endpoints.py
-│   │   ├── places_endpoints.py
-│   │   ├── reviews_endpoints.py
-│   │   ├── amenities_endpoints.py
-│   │
-│   ├── business_logic/              # Business Logic Layer
-│   │   ├── __init__.py
+## 📁 Project Structure
+```bash
+part2/
+├── app/
+│   ├── api/v1/          # API endpoints
+│   │   ├── users.py
+│   │   ├── places.py
+│   │   ├── reviews.py
+│   │   └── amenities.py
+│   ├── models/          # Business logic
+│   │   ├── base_model.py
 │   │   ├── user.py
 │   │   ├── place.py
 │   │   ├── review.py
-│   │   ├── amenity.py
-│   │   ├── base_model.py
-│   │
-│   ├── persistence/                 # Persistence Layer (In-memory)
-│   │   ├── __init__.py
-│   │   ├── repository.py
-│   │
-│   ├── facade/                      # Facade pattern connector
-│   │   ├── __init__.py
-│   │   ├── hbnb_facade.py
-│   │
-│   └── tests/
-│       ├── __init__.py
-│       ├── test_users.py
-│       ├── test_places.py
-│       ├── test_reviews.py
-│       └── test_amenities.py
-│
-└── README.md
-
-🧱 Tasks Overview
-Task 0 – Project Setup and Package Initialization
-
-Create the folder structure for presentation/, business_logic/, and persistence/.
-
-Implement an in-memory repository to temporarily store data.
-
-Prepare the Facade pattern for communication between layers.
-
-Task 1 – Core Business Logic Classes
-
-Implement:
-
+│   │   └── amenity.py
+│   ├── services/        # Facade pattern
+│   └── persistence/     # Repository pattern
+├── run.py               # Application entry point
+└── requirements.txt     # Project dependencies
+🚀 Installation & Setup
+bash
+Copier le code
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+🧩 Core Components
+1. 🔷 Base Model
+python
+Copier le code
+class BaseModel:
+    def __init__(self):
+        self.id = str(uuid.uuid4())
+        self.created_at = datetime.now()
+        self.updated_at = datetime.now()
+2. 📦 Core Models
 User
+
+Attributes: first_name, last_name, email, is_admin
+
+Validation: names ≤ 50 chars, unique email
 
 Place
 
+Attributes: title, description, price, latitude, longitude
+
+Validation: title ≤ 100 chars, price > 0
+
+Relationships: belongs to User, has many Reviews, many Amenities
+
 Review
+
+Attributes: text, rating (1-5), user_id, place_id
+
+Relationships: belongs to User and Place
 
 Amenity
 
-Include validation (UUIDs, timestamps, etc.)
+Attributes: name (≤ 50 chars)
 
-Define relationships (e.g., one user → many places).
+Relationships: many-to-many with Place
 
-Task 2 – User Endpoints
+3. 🎭 Facade Pattern
+python
+Copier le code
+class HBnBFacade:
+    def __init__(self):
+        self.user_repo = InMemoryRepository()
+        self.place_repo = InMemoryRepository()
+        self.review_repo = InMemoryRepository()
+        self.amenity_repo = InMemoryRepository()
 
-Implement CRUD operations (except DELETE):
+    # Example methods
+    def create_user(self, user_data):
+        user = User(**user_data)
+        self.user_repo.add(user)
+        return user
 
-POST /api/v1/users
+    def get_place_with_details(self, place_id):
+        place = self.place_repo.get(place_id)
+        if place:
+            place.owner = self.user_repo.get(place.owner_id)
+            place.reviews = self.review_repo.get_by_place(place_id)
+        return place
+🔌 API Endpoints & Examples
+👥 User Management
+bash
+Copier le code
+# Create User
+POST /api/v1/users/
+{
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john@example.com"
+}
 
-GET /api/v1/users/<id>
+# Response
+{
+    "id": "uuid",
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john@example.com"
+}
+🏡 Place Management
+bash
+Copier le code
+# Create Place
+POST /api/v1/places/
+{
+    "title": "Cozy Apartment",
+    "description": "Nice stay",
+    "price": 100.0,
+    "latitude": 37.7749,
+    "longitude": -122.4194,
+    "owner_id": "user_uuid",
+    "amenities": ["amenity_uuid"]
+}
 
-GET /api/v1/users
+# Get Place Details
+GET /api/v1/places/<place_id>
+Response includes: owner details, amenities, reviews
+⭐ Review Management
+bash
+Copier le code
+# Create Review
+POST /api/v1/reviews/
+{
+    "text": "Great place!",
+    "rating": 5,
+    "user_id": "user_uuid",
+    "place_id": "place_uuid"
+}
 
-PUT /api/v1/users/<id>
+# Get Place Reviews
+GET /api/v1/places/<place_id>/reviews
+🛋️ Amenity Management
+bash
+Copier le code
+# Create Amenity
+POST /api/v1/amenities/
+{
+    "name": "Wi-Fi"
+}
 
-Passwords must not appear in responses.
+# Get All Amenities
+GET /api/v1/amenities/
+📊 Status Codes & Responses
+201: Resource Created
 
-Task 3 – Amenity Endpoints
+200: Success
 
-Implement CRUD (except DELETE):
+404: Not Found
 
-POST /api/v1/amenities
+400: Bad Request
 
-GET /api/v1/amenities/<id>
+📝 Common Response Format
+json
+Copier le code
+{
+    "id": "uuid",
+    "created_at": "timestamp",
+    "updated_at": "timestamp",
+    ...resource specific fields...
+}
+🏃‍♂️ Running the Application
+bash
+Copier le code
+python run.py  # Server starts at http://localhost:5000
+🌟 Summary: This project implements a comprehensive REST API for a BnB platform using Flask, featuring clean architecture with Facade and Repository patterns, managing users, places, reviews, and amenities through a well-structured endpoint system.
+sql
+Copier le code
 
-PUT /api/v1/amenities/<id>
-
-Task 4 – Place Endpoints
-
-Implement CRUD (except DELETE):
-
-POST /api/v1/places
-
-GET /api/v1/places/<id>
-
-PUT /api/v1/places/<id>
-
-Handle relationships (User as owner, amenities linked).
-
-Validate price, latitude, longitude.
-
-Task 5 – Review Endpoints
-
-Implement full CRUD:
-
-POST /api/v1/reviews
-
-GET /api/v1/reviews/<id>
-
-PUT /api/v1/reviews/<id>
-
-DELETE /api/v1/reviews/<id>
-
-Link each review to both a user and a place.
-
-Task 6 – Testing and Validation
-
-Validate all inputs (types, required fields).
-
-Test endpoints using cURL and Swagger.
-
-Create automated tests with unittest or pytest.
-
-Document test results and edge cases.
-
-🔗 Example API Endpoints
-Method	Endpoint	Description
-POST	/api/v1/users	Create a new user
-GET	/api/v1/users/<id>	Retrieve a user by ID
-GET	/api/v1/places	List all places
-PUT	/api/v1/places/<id>	Update a place
-DELETE	/api/v1/reviews/<id>	Delete a review
-GET	/api/v1/amenities	List all amenities
-🧠 Key Concepts Used
-
-Flask – micro web framework for Python
-
-flask-restx – structured REST API and documentation
-
-In-Memory Repository – temporary storage system
-
-Facade Pattern – interface simplifying layer communication
-
-Serialization – converting Python objects into JSON
-
-OOP Principles – encapsulation, inheritance, composition
-
-Separation of Concerns – modular and maintainable design
-
-🧰 Tools & Resources
-
-Flask Documentation
-
-flask-restx Documentation
-
-Python Project Structure Best Practices
-
-REST API Design Best Practices
-
-Facade Design Pattern in Python
-
-🧪 Testing Example (cURL)
-# Create a user
-curl -X POST http://127.0.0.1:5000/api/v1/users \
-     -H "Content-Type: application/json" \
-     -d '{"first_name": "Alice", "last_name": "Doe", "email": "alice@example.com"}'
-
-# Get list of users
-curl -X GET http://127.0.0.1:5000/api/v1/users
-
-👥 Team
-
-Heytem Keddous
-
-Zaccaria Azladji
-
-[Add third teammate name here]
-
-Project developed as part of the Holberton School HBnB Evolution project – Part 2.
-
-🧾 License
-
-This project is part of the Holberton School Curriculum.
-All rights reserved © 2025 – HBnB Evolution Team.
+Cela reprend la structure de ton projet tout en intégrant des exemples de code en ligne.
