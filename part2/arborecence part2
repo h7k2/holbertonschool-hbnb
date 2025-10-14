@@ -1,27 +1,19 @@
 hbnb/
-├── app/
+├── presentation/             # Couche présentation (API Flask)
 │   ├── __init__.py
-│   ├── api/
-│   │   ├── __init__.py
-│   │   ├── v1/
-│   │       ├── __init__.py
-│   │       ├── users.py
-│   │       ├── places.py
-│   │       ├── reviews.py
-│   │       ├── amenities.py
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── user.py
-│   │   ├── place.py
-│   │   ├── review.py
-│   │   ├── amenity.py
-│   ├── services/
-│   │   ├── __init__.py
-│   │   ├── facade.py
-│   ├── persistence/
-│       ├── __init__.py
-│       ├── repository.py
-├── run.py
-├── config.py
-├── requirements.txt
-├── README.md
+│   ├── app.py                # Application Flask principale
+│   └── routes/               # Endpoints de l’API
+│       └── __init__.py
+│
+├── business/                 # Couche logique métier
+│   ├── __init__.py
+│   ├── models/               # Entités : User, Place, Review, etc.
+│   ├── services/             # Règles métiers / contrôleurs
+│   └── facade.py             # Interface simplifiée (pattern Facade)
+│
+├── persistence/              # Couche stockage (données)
+│   ├── __init__.py
+│   ├── memory_repository.py  # Stockage en mémoire
+│   └── repository_interface.py
+│
+└── run.py                    # Point d’entrée pour exécuter l’app Flask
