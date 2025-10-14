@@ -1,3 +1,6 @@
+Voici le même contenu dans le format markdown avec des sections de code que tu demandes :
+
+````markdown
 # 🏠 HBNB - Holberton BnB
 
 ## 🎯 Project Overview
@@ -22,51 +25,54 @@ part2/
 │   └── persistence/     # Repository pattern
 ├── run.py               # Application entry point
 └── requirements.txt     # Project dependencies
-🚀 Installation & Setup
-bash
-Copier le code
+````
+
+## 🚀 Installation & Setup
+
+```bash
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-🧩 Core Components
-1. 🔷 Base Model
-python
-Copier le code
+```
+
+## 🧩 Core Components
+
+### 1. 🔷 Base Model
+
+```python
 class BaseModel:
     def __init__(self):
         self.id = str(uuid.uuid4())
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
-2. 📦 Core Models
-User
+```
 
-Attributes: first_name, last_name, email, is_admin
+### 2. 📦 Core Models
 
-Validation: names ≤ 50 chars, unique email
+* **User**
 
-Place
+  * Attributes: `first_name`, `last_name`, `email`, `is_admin`
+  * Validation: names ≤ 50 chars, unique email
 
-Attributes: title, description, price, latitude, longitude
+* **Place**
 
-Validation: title ≤ 100 chars, price > 0
+  * Attributes: `title`, `description`, `price`, `latitude`, `longitude`
+  * Validation: title ≤ 100 chars, price > 0
+  * Relationships: belongs to `User`, has many `Reviews`, many `Amenities`
 
-Relationships: belongs to User, has many Reviews, many Amenities
+* **Review**
 
-Review
+  * Attributes: `text`, `rating (1-5)`, `user_id`, `place_id`
+  * Relationships: belongs to `User` and `Place`
 
-Attributes: text, rating (1-5), user_id, place_id
+* **Amenity**
 
-Relationships: belongs to User and Place
+  * Attributes: `name (≤ 50 chars)`
+  * Relationships: many-to-many with `Place`
 
-Amenity
+### 3. 🎭 Facade Pattern
 
-Attributes: name (≤ 50 chars)
-
-Relationships: many-to-many with Place
-
-3. 🎭 Facade Pattern
-python
-Copier le code
+```python
 class HBnBFacade:
     def __init__(self):
         self.user_repo = InMemoryRepository()
@@ -86,10 +92,13 @@ class HBnBFacade:
             place.owner = self.user_repo.get(place.owner_id)
             place.reviews = self.review_repo.get_by_place(place_id)
         return place
-🔌 API Endpoints & Examples
-👥 User Management
-bash
-Copier le code
+```
+
+## 🔌 API Endpoints & Examples
+
+### 👥 User Management
+
+```bash
 # Create User
 POST /api/v1/users/
 {
@@ -105,9 +114,11 @@ POST /api/v1/users/
     "last_name": "Doe",
     "email": "john@example.com"
 }
-🏡 Place Management
-bash
-Copier le code
+```
+
+### 🏡 Place Management
+
+```bash
 # Create Place
 POST /api/v1/places/
 {
@@ -123,9 +134,11 @@ POST /api/v1/places/
 # Get Place Details
 GET /api/v1/places/<place_id>
 Response includes: owner details, amenities, reviews
-⭐ Review Management
-bash
-Copier le code
+```
+
+### ⭐ Review Management
+
+```bash
 # Create Review
 POST /api/v1/reviews/
 {
@@ -137,9 +150,11 @@ POST /api/v1/reviews/
 
 # Get Place Reviews
 GET /api/v1/places/<place_id>/reviews
-🛋️ Amenity Management
-bash
-Copier le code
+```
+
+### 🛋️ Amenity Management
+
+```bash
 # Create Amenity
 POST /api/v1/amenities/
 {
@@ -148,30 +163,37 @@ POST /api/v1/amenities/
 
 # Get All Amenities
 GET /api/v1/amenities/
-📊 Status Codes & Responses
-201: Resource Created
+```
 
-200: Success
+## 📊 Status Codes & Responses
 
-404: Not Found
+* 201: Resource Created
+* 200: Success
+* 404: Not Found
+* 400: Bad Request
 
-400: Bad Request
+### 📝 Common Response Format
 
-📝 Common Response Format
-json
-Copier le code
+```json
 {
     "id": "uuid",
     "created_at": "timestamp",
     "updated_at": "timestamp",
     ...resource specific fields...
 }
-🏃‍♂️ Running the Application
-bash
-Copier le code
-python run.py  # Server starts at http://localhost:5000
-🌟 Summary: This project implements a comprehensive REST API for a BnB platform using Flask, featuring clean architecture with Facade and Repository patterns, managing users, places, reviews, and amenities through a well-structured endpoint system.
-sql
-Copier le code
+```
 
-Cela reprend la structure de ton projet tout en intégrant des exemples de code en ligne.
+## 🏃‍♂️ Running the Application
+
+```bash
+python run.py  # Server starts at http://localhost:5000
+```
+
+---
+
+## 🌟 **Summary**: This project implements a comprehensive REST API for a BnB platform using Flask, featuring clean architecture with Facade and Repository patterns, managing users, places, reviews, and amenities through a well-structured endpoint system.
+
+```
+
+Tu peux copier ce format directement dans ton fichier Markdown. Les sections de code sont bien formatées et tu as aussi les explications pour chaque composant et endpoint.
+```
