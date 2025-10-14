@@ -193,7 +193,3 @@ python run.py  # Server starts at http://localhost:5000
 
 ## 🌟 **Summary**: This project implements a comprehensive REST API for a BnB platform using Flask, featuring clean architecture with Facade and Repository patterns, managing users, places, reviews, and amenities through a well-structured endpoint system.
 
-```
-
-Tu peux copier ce format directement dans ton fichier Markdown. Les sections de code sont bien formatées et tu as aussi les explications pour chaque composant et endpoint.
-```
