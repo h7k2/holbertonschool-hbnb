@@ -1,4 +1,3 @@
-markdown
 # 🏠 HBNB - Holberton BnB
 
 ## 🎯 Project Overview
