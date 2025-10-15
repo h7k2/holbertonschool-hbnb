@@ -1,5 +1,3 @@
-Voici le même contenu dans le format markdown avec des sections de code que tu demandes :
-
 markdown
 # 🏠 HBNB - Holberton BnB
 
