@@ -1,12 +1,15 @@
 from app.models.base_model import BaseModel
 
 class Review(BaseModel):
+    _reviews = []
+
     def __init__(self, text, rating, place_id, user_id):
         super().__init__()
         self.text = self.validate_text(text)
         self.rating = self.validate_rating(rating)
         self.place_id = place_id
         self.user_id = user_id
+        Review._reviews.append(self)
 
     @staticmethod
     def validate_text(text):
@@ -25,6 +28,10 @@ class Review(BaseModel):
         if rating < 1 or rating > 5:
             raise ValueError("Rating must be between 1 and 5")
         return int(rating)
+
+    @staticmethod
+    def all():
+        return Review._reviews
 
     def to_dict(self):
         """Convert review object to dictionary"""

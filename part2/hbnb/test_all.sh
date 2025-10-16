@@ -32,3 +32,16 @@ echo -e "\n📋 All reviews:"
 curl $BASE/reviews/
 
 echo -e "\n\n✅ Testing completed!"
+
+class HBnBFacade:
+    # ...autres méthodes...
+
+    def create_place(self, place_data):
+        """
+        Crée un nouveau lieu (place) avec les données fournies.
+        """
+        # Exemple basique, à adapter selon votre modèle et stockage
+        from .models import Place  # ajustez l'import si besoin
+        new_place = Place(**place_data)
+        new_place.save()
+        return new_place

@@ -2,6 +2,8 @@ from .base_model import BaseModel
 from .user import User
 
 class Place(BaseModel):
+    _places = []
+
     def __init__(self, title, description, price, latitude, longitude, owner_id=None, owner=None):
         super().__init__()
         self.title = title
@@ -18,6 +20,7 @@ class Place(BaseModel):
         self.amenities = []
 
         self.validate_attributes()
+        Place._places.append(self)
 
     @property
     def owner(self):
@@ -49,3 +52,7 @@ class Place(BaseModel):
     def add_amenity(self, amenity):
         """Add an amenity to the place."""
         self.amenities.append(amenity)
+
+    @staticmethod
+    def all():
+        return Place._places
