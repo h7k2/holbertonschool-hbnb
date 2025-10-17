@@ -1,6 +1,6 @@
-# 🏠 HBNB - Holberton BnB
+# HBNB - Holberton BnB
 
-## 🎯 Project Overview
+## Project Overview
 RESTful API for a Bed and Breakfast service built with Flask, implementing clean architecture patterns.
 
 ## 📁 Project Structure
@@ -24,7 +24,7 @@ part2/
 └── requirements.txt     # Project dependencies
 ````
 
-## 🚀 Installation & Setup
+## Installation & Setup
 
 ```bash
 python3 -m venv venv
@@ -34,7 +34,7 @@ pip install -r requirements.txt
 
 ## 🧩 Core Components
 
-### 1. 🔷 Base Model
+### 1. Base Model
 
 ```python
 class BaseModel:
@@ -44,7 +44,7 @@ class BaseModel:
         self.updated_at = datetime.now()
 ```
 
-### 2. 📦 Core Models
+### 2. Core Models
 
 * **User**
 
@@ -67,7 +67,7 @@ class BaseModel:
   * Attributes: `name (≤ 50 chars)`
   * Relationships: many-to-many with `Place`
 
-### 3. 🎭 Facade Pattern
+### 3. Facade Pattern
 
 ```python
 class HBnBFacade:
@@ -93,7 +93,7 @@ class HBnBFacade:
 
 ## 🔌 API Endpoints & Examples
 
-### 👥 User Management
+### User Management
 
 ```bash
 # Create User
@@ -113,7 +113,7 @@ POST /api/v1/users/
 }
 ```
 
-### 🏡 Place Management
+### Place Management
 
 ```bash
 # Create Place
@@ -133,7 +133,7 @@ GET /api/v1/places/<place_id>
 Response includes: owner details, amenities, reviews
 ```
 
-### ⭐ Review Management
+### Review Management
 
 ```bash
 # Create Review
@@ -149,7 +149,7 @@ POST /api/v1/reviews/
 GET /api/v1/places/<place_id>/reviews
 ```
 
-### 🛋️ Amenity Management
+### Amenity Management
 
 ```bash
 # Create Amenity
@@ -188,15 +188,11 @@ python run.py  # Server starts at http://localhost:5000
 
 ---
 
-## 🌟 **Summary**: This project implements a comprehensive REST API for a BnB platform using Flask, featuring clean architecture with Facade and Repository patterns, managing users, places, reviews, and amenities through a well-structured endpoint system.
+## **Summary**: The project implements a REST API for a BnB platform by use Flask, clean architecture with Facade and Repository, managing users, places, reviews, and amenities through a structured endpoint system.
 
 
 
-# 🧪 HBNB API - Test Report
-
-**Date**: October 16, 2025  
-**Testing Tools**: cURL, Flask test client  
-**Total Endpoints Tested**: 8
+# HBNB API - Test Report
 
 ---
 
@@ -205,8 +201,6 @@ python run.py  # Server starts at http://localhost:5000
 | Endpoint | Method | Test Case | Status | Result |
 |----------|--------|-----------|--------|--------|
 | `/api/v1/users/` | POST | Create valid user | 201 | ✅ PASS |
-| `/api/v1/users/` | POST | Invalid email format | 400 | ✅ PASS |
-| `/api/v1/users/` | POST | Duplicate email | 400 | ✅ PASS |
 | `/api/v1/users/` | GET | Get all users | 200 | ✅ PASS |
 | `/api/v1/amenities/` | POST | Create amenity | 201 | ✅ PASS |
 | `/api/v1/amenities/` | GET | Get all amenities | 200 | ✅ PASS |
@@ -215,7 +209,6 @@ python run.py  # Server starts at http://localhost:5000
 | `/api/v1/reviews/` | POST | Create review | 201 | ✅ PASS |
 | `/api/v1/reviews/` | GET | Get all reviews | 200 | ✅ PASS |
 
-**Total**: 10/10 tests passed ✅
 
 ---
 
@@ -391,76 +384,4 @@ Content-Type: application/json
 
 ---
 
-## 🎯 Validation Rules Tested
-
-### User Validation
-- ✅ Email format validation (regex pattern)
-- ✅ Required fields enforcement
-- ✅ Duplicate email detection
-- ✅ Name length limit (50 characters)
-
-### Review Validation
-- ✅ Rating range validation (1-5)
-- ✅ Text requirement validation
-
----
-
-## 📚 Swagger Documentation
-
-API documentation is automatically generated and accessible at:
-```
-http://localhost:5000
-```
-
-All endpoints are documented with:
-- Request/Response models
-- Required/Optional parameters
-- Response codes
-- Interactive testing interface
-
----
-
-## 🔍 Edge Cases Handled
-
-1. **Empty/Whitespace inputs**: Validated and rejected
-2. **Invalid data types**: Proper error messages returned
-3. **Missing required fields**: 400 Bad Request with descriptive error
-4. **Out-of-range values**: Validated (e.g., rating must be 1-5)
-5. **Duplicate entries**: Checked for unique constraints (email)
-
----
-
-## 🚀 How to Run Tests
-
-### Manual Testing with cURL:
-```bash
-# Start the application
-python run.py
-
-# In another terminal, run tests
-./test_all.sh
-```
-
-### Access Swagger UI:
-```bash
-"$BROWSER" http://localhost:5000
-```
-
----
-
-## ✅ Conclusion
-
-All endpoints are **fully functional** and return appropriate:
-- ✅ Status codes (200, 201, 400, 404, 500)
-- ✅ Response formats (JSON)
-- ✅ Error messages
-- ✅ Validation feedback
-
-The API follows REST principles and implements proper error handling.
-
----
-
-**Tested by**: [Your Name]  
-**Environment**: Ubuntu 24.04.2 LTS (Dev Container)  
-**Python Version**: 3.12.1  
-**Flask Version**: Latest
+Authors : github.com/h7k2 ; github.com/zoulouhhh
