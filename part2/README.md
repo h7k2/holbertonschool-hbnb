@@ -168,7 +168,7 @@ GET /api/v1/amenities/
 * 200: Success
 * 404: Not Found
 * 400: Bad Request
-* 500: DB Problem
+* 500: Problem on Database
 
 ### 📝 Common Response Format
 
