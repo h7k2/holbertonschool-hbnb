@@ -1,0 +1,70 @@
+from app.models.user import User
+from app.models.place import Place
+from app.models.review import Review
+from app.models.amenity import Amenity
+from app.persistence.repository import InMemoryRepository
+from typing import Dict, Any, Optional, List
+
+class HBnBFacade:
+    def __init__(self):
+        self.user_repo = InMemoryRepository()
+        self.place_repo = InMemoryRepository()
+        self.review_repo = InMemoryRepository()
+        self.amenity_repo = InMemoryRepository()
+
+    # ========== USER METHODS ==========
+    def create_user(self, user_data: Dict[str, Any]) -> Any:
+        """Create a new user"""
+        user = User(**user_data)
+        self.user_repo.add(user)
+        return user
+
+    def get_user_by_email(self, email: str) -> Optional[Any]:
+        """Get a user by email address"""
+        users = self.user_repo.get_all()
+        for user in users:
+            if user.email == email:
+                return user
+        return None
+
+    def get_user(self, user_id: str) -> Optional[Any]:
+        """Get a user by ID"""
+        return self.user_repo.get(user_id)
+
+    def get_all_users(self) -> List[Any]:
+        """Get all users"""
+        return self.user_repo.get_all()
+
+    def update_user(self, user_id: str, user_data: Dict[str, Any]) -> Optional[Any]:
+        """Update a user"""
+        user = self.user_repo.get(user_id)
+        if not user:
+            return None
+        
+        # Update only allowed fields
+        if 'first_name' in user_data:
+            user.first_name = user.validate_name(user_data['first_name'], "First name")
+        if 'last_name' in user_data:
+            user.last_name = user.validate_name(user_data['last_name'], "Last name")
+        if 'email' in user_data:
+            # Check if new email is already used by another user
+            existing_user = self.get_user_by_email(user_data['email'])
+            if existing_user and existing_user.id != user_id:
+                raise ValueError("Email already registered")
+            user.email = user.validate_email(user_data['email'])
+        
+        # Update timestamp
+        user.update_timestamp()
+        
+        # Save back to repository
+        self.user_repo._storage[user_id] = user
+        
+        return user
+
+    def delete_review(self, review_id: str) -> bool:
+        """Delete a review"""
+        return self.review_repo.delete(review_id)
+
+    # serialization
+    def place_with_related(self, place_id: str) -> Dict[str, Any]:
+        raise NotImplementedError
