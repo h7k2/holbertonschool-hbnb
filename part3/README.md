@@ -1,7 +1,4 @@
-Parfait 🔥 tu veux donc que je te rédige le README.md du projet HBnB – Part 3 : Auth & DB (intégration de l’authentification et de la base de données).
 
-Je vais te faire un README propre, professionnel, et conforme au style Holberton, prêt à mettre dans ton repo holbertonschool-hbnb/part3.
-Voici la version complète 👇
 
 🏠 HBnB – Part 3: Authentication & Database Integration
 📘 Project Overview
@@ -195,7 +192,6 @@ Heytem Keddous
 
 Zaccaria Azladji
 
-[Teammate 3 Name]
 
 🧾 License
 
