@@ -1,58 +1,78 @@
-from .base_model import BaseModel
-from .user import User
+from app.extensions import db
+from app.models.base import BaseModel
+from sqlalchemy.orm import validates
+
 
 class Place(BaseModel):
-    _places = []
+    """Place model for storing place information"""
 
-    def __init__(self, title, description, price, latitude, longitude, owner_id=None, owner=None):
+    __tablename__ = 'places'
+
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(500), nullable=True)
+    price = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    owner_id = db.Column(db.String(36), nullable=False)  # Temporaire, relation ajoutée plus tard
+
+    # Ces attributs seront ajoutés plus tard avec les relations
+    # amenities = relationship...
+    # reviews = relationship...
+
+    def __init__(self, title, description, price, latitude, longitude, owner_id):
+        """Initialize a Place instance"""
         super().__init__()
         self.title = title
         self.description = description
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
-        self._owner = None
         self.owner_id = owner_id
-        if owner:
-            self._owner = owner
-            self.owner_id = owner.id
-        self.reviews = []
-        self.amenities = []
 
-        self.validate_attributes()
-        Place._places.append(self)
+    @validates('title')
+    def validate_title(self, key, title):
+        """Validate title is not empty and within length limits"""
+        if not title or not title.strip():
+            raise ValueError("Title cannot be empty")
+        if len(title) > 100:
+            raise ValueError("Title cannot exceed 100 characters")
+        return title.strip()
 
-    @property
-    def owner(self):
-        return self._owner
+    @validates('price')
+    def validate_price(self, key, price):
+        """Validate price is positive"""
+        if price <= 0:
+            raise ValueError("Price must be greater than 0")
+        return price
 
-    @owner.setter
-    def owner(self, value):
-        if not isinstance(value, User):
-            raise ValueError("Owner must be an instance of User")
-        self._owner = value
-        self.owner_id = value.id
+    @validates('latitude')
+    def validate_latitude(self, key, latitude):
+        """Validate latitude is within valid range"""
+        if not -90 <= latitude <= 90:
+            raise ValueError("Latitude must be between -90 and 90")
+        return latitude
 
-    def validate_attributes(self):
-        if not isinstance(self.title, str) or not self.title:
-            raise ValueError("Title must be a non-empty string")
-        if not isinstance(self.description, str):
-            raise ValueError("Description must be a string")
-        if not isinstance(self.price, (int, float)) or self.price < 0:
-            raise ValueError("Price must be a non-negative number")
-        if not isinstance(self.latitude, (int, float)) or not (-90 <= self.latitude <= 90):
-            raise ValueError("Latitude must be a number between -90 and 90")
-        if not isinstance(self.longitude, (int, float)) or not (-180 <= self.longitude <= 180):
-            raise ValueError("Longitude must be a number between -180 and 180")
+    @validates('longitude')
+    def validate_longitude(self, key, longitude):
+        """Validate longitude is within valid range"""
+        if not -180 <= longitude <= 180:
+            raise ValueError("Longitude must be between -180 and 180")
+        return longitude
 
-    def add_review(self, review):
-        """Add a review to the place."""
-        self.reviews.append(review)
+    def to_dict(self):
+        """Convert Place instance to dictionary"""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'price': self.price,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'owner_id': self.owner_id,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
 
-    def add_amenity(self, amenity):
-        """Add an amenity to the place."""
-        self.amenities.append(amenity)
-
-    @staticmethod
-    def all():
-        return Place._places
+    def __repr__(self):
+        """String representation of Place"""
+        return f"<Place {self.title}>"

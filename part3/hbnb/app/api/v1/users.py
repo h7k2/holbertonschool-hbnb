@@ -1,101 +1,101 @@
 from flask_restx import Namespace, Resource, fields
-from app.api.v1 import facade
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from app.services.facade import HBnBFacade
 
 api = Namespace('users', description='User operations')
 
-# Model for creating a user (all fields required)
+# Define the user model for input validation
 user_model = api.model('User', {
-    'first_name': fields.String(required=True, description='First name'),
-    'last_name': fields.String(required=True, description='Last name'),
-    'email': fields.String(required=True, description='Email address')
+    'first_name': fields.String(required=True, description='First name', min_length=1, max_length=50),
+    'last_name': fields.String(required=True, description='Last name', min_length=1, max_length=50),
+    'email': fields.String(required=True, description='Email address'),
+    'password': fields.String(required=True, description='Password (min 8 characters)', min_length=8)
 })
 
-# Model for updating a user (all fields optional)
-user_update_model = api.model('UserUpdate', {
-    'first_name': fields.String(required=False, description='First name'),
-    'last_name': fields.String(required=False, description='Last name'),
-    'email': fields.String(required=False, description='Email address')
+# Response model (without password)
+user_response_model = api.model('UserResponse', {
+    'id': fields.String(description='User ID'),
+    'first_name': fields.String(description='First name'),
+    'last_name': fields.String(description='Last name'),
+    'email': fields.String(description='Email'),
+    'is_admin': fields.Boolean(description='Admin status'),
+    'created_at': fields.String(description='Creation timestamp'),
+    'updated_at': fields.String(description='Last update timestamp')
 })
+
+facade = HBnBFacade()
 
 @api.route('/')
 class UserList(Resource):
+    @api.doc('list_users', security='Bearer')
+    @api.marshal_list_with(user_response_model)
+    @jwt_required()
+    def get(self):
+        """Retrieve all users (Protected)"""
+        users = facade.get_all_users()
+        return [user.to_dict() for user in users], 200
+
+    @api.doc('create_user')
     @api.expect(user_model, validate=True)
-    @api.response(201, 'User successfully created')
-    @api.response(400, 'Invalid input')
+    @api.marshal_with(user_response_model, code=201)
     def post(self):
-        """Create a new user"""
+        """Register a new user (Public)"""
         user_data = api.payload
         
-        # Check if email already exists
-        existing_user = facade.get_user_by_email(user_data['email'])
-        if existing_user:
-            return {'error': 'Email already registered'}, 400
+        # Check if email exists
+        if facade.get_user_by_email(user_data['email']):
+            api.abort(409, 'Email already registered')
         
         try:
             new_user = facade.create_user(user_data)
-            return {
-                'id': new_user.id,
-                'first_name': new_user.first_name,
-                'last_name': new_user.last_name,
-                'email': new_user.email
-            }, 201
+            return new_user.to_dict(), 201
         except ValueError as e:
-            return {'error': str(e)}, 400
+            api.abort(400, str(e))
 
-    @api.response(200, 'List of users retrieved successfully')
-    def get(self):
-        """Retrieve all users"""
-        users = facade.get_all_users()
-        return [
-            {
-                'id': user.id,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email
-            }
-            for user in users
-        ], 200
-
-@api.route('/<string:id>')
+@api.route('/<user_id>')
 class UserResource(Resource):
-    @api.response(200, 'User details retrieved successfully')
-    @api.response(404, 'User not found')
-    def get(self, id):
-        """Get user details by ID"""
-        user = facade.get_user(id)
+    @api.doc('get_user', security='Bearer')
+    @api.marshal_with(user_response_model)
+    @jwt_required()
+    def get(self, user_id):
+        """Get user by ID (Protected)"""
+        user = facade.get_user(user_id)
         if not user:
-            return {'error': 'User not found'}, 404
-        return {
-            'id': user.id,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email
-        }, 200
+            api.abort(404, 'User not found')
+        return user.to_dict(), 200
 
-    @api.expect(user_update_model, validate=True)
-    @api.response(200, 'User successfully updated')
-    @api.response(404, 'User not found')
-    @api.response(400, 'Invalid input data')
-    def put(self, id):
-        """Update user details"""
-        user_data = api.payload
+    @api.doc('update_user', security='Bearer')
+    @api.expect(user_model)
+    @api.marshal_with(user_response_model)
+    @jwt_required()
+    def put(self, user_id):
+        """Update user (Protected - Owner or Admin only)"""
+        current_user_id = get_jwt_identity()
+        claims = get_jwt()
+        is_admin = claims.get('is_admin', False)
+        
+        # Authorization check
+        if current_user_id != user_id and not is_admin:
+            api.abort(403, 'Unauthorized action')
+        
         try:
-            user = facade.update_user(id, user_data)
-            if not user:
-                return {'error': 'User not found'}, 404
-            return {
-                'id': user.id,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email
-            }, 200
+            updated_user = facade.update_user(user_id, api.payload)
+            if not updated_user:
+                api.abort(404, 'User not found')
+            return updated_user.to_dict(), 200
         except ValueError as e:
-            return {'error': str(e)}, 400
+            api.abort(400, str(e))
 
-    @api.response(200, 'User deleted successfully')
-    @api.response(404, 'User not found')
-    def delete(self, id):
-        """Delete a user"""
-        if facade.delete_user(id):
-            return {'message': 'User deleted successfully'}, 200
-        return {'error': 'User not found'}, 404
+    @api.doc('delete_user', security='Bearer')
+    @jwt_required()
+    def delete(self, user_id):
+        """Delete user (Admin only)"""
+        claims = get_jwt()
+        is_admin = claims.get('is_admin', False)
+        
+        if not is_admin:
+            api.abort(403, 'Admin privileges required')
+        
+        if not facade.delete_user(user_id):
+            api.abort(404, 'User not found')
+        return '', 204

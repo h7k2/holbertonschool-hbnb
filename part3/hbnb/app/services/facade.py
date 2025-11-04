@@ -1,229 +1,154 @@
 from app.models.user import User
+from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
-from app.models.amenity import Amenity
-from app.persistence.repository import InMemoryRepository
+from app.persistence.repository import SQLAlchemyRepository
+from app.services.repositories import UserRepository, PlaceRepository, ReviewRepository, AmenityRepository
 from typing import Dict, Any, Optional, List
 
+
 class HBnBFacade:
+    """
+    Facade class to handle business logic for HBnB application
+    """
+    
     def __init__(self):
-        self.user_repo = InMemoryRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
+        self.user_repo = UserRepository()
+        self.place_repo = PlaceRepository()
+        self.review_repo = ReviewRepository()
+        self.amenity_repo = AmenityRepository()
 
     # ========== USER METHODS ==========
-    def create_user(self, user_data: Dict[str, Any]) -> Any:
-        """Create a new user"""
-        user = User(**user_data)
+    def create_user(self, user_data: Dict[str, Any]) -> User:
+        """Create a new user with hashed password"""
+        user = User(
+            first_name=user_data['first_name'],
+            last_name=user_data['last_name'],
+            email=user_data['email'],
+            password=user_data['password'],
+            is_admin=user_data.get('is_admin', False)
+        )
         self.user_repo.add(user)
         return user
 
-    def get_user_by_email(self, email: str) -> Optional[Any]:
-        """Get a user by email address"""
-        users = self.user_repo.get_all()
-        for user in users:
-            if user.email == email:
-                return user
-        return None
-
-    def get_user(self, user_id: str) -> Optional[Any]:
+    def get_user(self, user_id: str) -> Optional[User]:
         """Get a user by ID"""
         return self.user_repo.get(user_id)
 
-    def get_all_users(self) -> List[Any]:
+    def get_user_by_email(self, email: str) -> Optional[User]:
+        """Get a user by email address"""
+        return self.user_repo.get_user_by_email(email)
+
+    def get_all_users(self) -> List[User]:
         """Get all users"""
         return self.user_repo.get_all()
 
-    def update_user(self, user_id: str, user_data: Dict[str, Any]) -> Optional[Any]:
+    def update_user(self, user_id: str, user_data: Dict[str, Any]) -> Optional[User]:
         """Update a user"""
-        user = self.user_repo.get(user_id)
+        user = self.get_user(user_id)
         if not user:
             return None
         
         # Update only allowed fields
         if 'first_name' in user_data:
-            user.first_name = user.validate_name(user_data['first_name'], "First name")
+            user.first_name = user_data['first_name']
         if 'last_name' in user_data:
-            user.last_name = user.validate_name(user_data['last_name'], "Last name")
+            user.last_name = user_data['last_name']
         if 'email' in user_data:
-            # Check if new email is already used by another user
-            existing_user = self.get_user_by_email(user_data['email'])
-            if existing_user and existing_user.id != user_id:
-                raise ValueError("Email already registered")
-            user.email = user.validate_email(user_data['email'])
-        
-        # Update timestamp
-        user.update_timestamp()
-        
-        # Save back to repository
-        self.user_repo._storage[user_id] = user
+            # Check if email is already taken
+            existing = self.get_user_by_email(user_data['email'])
+            if existing and existing.id != user_id:
+                raise ValueError('Email already registered')
+            user.email = user_data['email']
+        if 'password' in user_data:
+            user.hash_password(user_data['password'])
         
         return user
 
-    def delete_review(self, review_id: str) -> bool:
+    def delete_user(self, user_id: str) -> bool:
+        """Delete a user"""
+        return self.user_repo.delete(user_id)
+
+    # ========== PLACE METHODS ==========
+    def place_with_related(self, place_id: str) -> Dict[str, Any]:
+        """Get place with related data"""
+        place = self.get_place(place_id)
+        if not place:
+            return None
+        
+        place_dict = place.to_dict()
+        # Add related data if needed
+        return place_dict
+
+    def create_place(self, place_data):
+        """Create a new place"""
+        place = Place(**place_data)
+        self.place_repo.add(place)
+        return place
+
+    def get_all_places(self):
+        """Get all places"""
+        return self.place_repo.get_all()
+
+    def get_place(self, place_id):
+        """Get a place by ID"""
+        return self.place_repo.get(place_id)
+
+    def update_place(self, place_id, place_data):
+        """Update a place"""
+        return self.place_repo.update(place_id, place_data)
+
+    def delete_place(self, place_id):
+        """Delete a place"""
+        return self.place_repo.delete(place_id)
+
+    # ========== REVIEW METHODS ==========
+    def create_review(self, review_data):
+        """Create a new review"""
+        review = Review(**review_data)
+        self.review_repo.add(review)
+        return review
+
+    def get_all_reviews(self):
+        """Get all reviews"""
+        return self.review_repo.get_all()
+
+    def get_reviews_by_place(self, place_id):
+        """Get reviews for a specific place"""
+        all_reviews = self.review_repo.get_all()
+        return [r for r in all_reviews if r.place_id == place_id]
+
+    def get_review(self, review_id):
+        """Get a review by ID"""
+        return self.review_repo.get(review_id)
+
+    def update_review(self, review_id, review_data):
+        """Update a review"""
+        return self.review_repo.update(review_id, review_data)
+
+    def delete_review(self, review_id):
         """Delete a review"""
         return self.review_repo.delete(review_id)
 
-    # serialization
-    def place_with_related(self, place_id: str) -> Dict[str, Any]:
-        raise NotImplementedError
-
-    def create_place(self, place_data):
-        """
-        Crée un nouveau lieu (place) avec les données fournies.
-        """
-        from app.models.place import Place  # <-- adaptez ce chemin selon l'emplacement réel
-        new_place = Place(**place_data)
-        new_place.save()
-        return new_place
-
-    def get_all_places(self):
-        """
-        Retourne la liste de tous les lieux (places).
-        """
-        from app.models.place import Place  # adapte le chemin si besoin
-        # Supposons que tu as une variable de classe ou globale qui stocke les places
-        return Place.all()  # ou Place.objects(), ou Place.storage, selon ton implémentation
-
-    def get_place(self, place_id):
-        """
-        Retourne un lieu (place) selon son identifiant.
-        """
-        from app.models.place import Place  # adapte le chemin si besoin
-        # Exemple si tu as une méthode statique all() qui retourne toutes les places
-        for place in Place.all():
-            if getattr(place, "id", None) == place_id:
-                return place
-        return None
-
-    def update_place(self, place_id, place_data):
-        """
-        Met à jour un lieu (place) avec les nouvelles données.
-        """
-        from app.models.place import Place  # adapte le chemin si besoin
-        place = self.get_place(place_id)
-        if not place:
-            return None
-        for key, value in place_data.items():
-            setattr(place, key, value)
-        if hasattr(place, "save"):
-            place.save()
-        return place
-
-    def create_review(self, review_data):
-        """
-        Crée un nouvel avis (review) avec les données fournies.
-        """
-        from app.models.review import Review  # adapte le chemin si besoin
-        new_review = Review(**review_data)
-        if hasattr(new_review, "save"):
-            new_review.save()
-        return new_review
-
-    def get_all_reviews(self):
-        """
-        Retourne la liste de tous les avis (reviews).
-        """
-        from app.models.review import Review
-        return Review.all()
-
-    def get_reviews_by_place(self, place_id):
-        """
-        Retourne la liste des avis (reviews) pour un lieu (place) donné.
-        """
-        from app.models.review import Review  # adapte le chemin si besoin
-        return [review for review in Review.all() if getattr(review, "place_id", None) == place_id]
-
-    def get_review(self, review_id):
-        """
-        Retourne un avis (review) selon son identifiant.
-        """
-        from app.models.review import Review  # adapte le chemin si besoin
-        for review in Review.all():
-            if getattr(review, "id", None) == review_id:
-                return review
-        return None
-
+    # ========== AMENITY METHODS ==========
     def create_amenity(self, amenity_data):
-        """
-        Crée une nouvelle commodité (amenity) avec les données fournies.
-        """
-        from app.models.amenity import Amenity  # adapte le chemin si besoin
-        new_amenity = Amenity(**amenity_data)
-        if hasattr(new_amenity, "save"):
-            new_amenity.save()
-        return new_amenity
-
-    def get_all_amenities(self):
-        """
-        Retourne la liste de toutes les commodités (amenities).
-        """
-        from app.models.amenity import Amenity  # adapte le chemin si besoin
-        return Amenity.all()  # ou la méthode adaptée à ton stockage
-
-    def get_amenity(self, amenity_id):
-        """
-        Retourne une commodité (amenity) selon son identifiant.
-        """
-        from app.models.amenity import Amenity  # adapte le chemin si besoin
-        for amenity in Amenity.all():
-            if getattr(amenity, "id", None) == amenity_id:
-                return amenity
-        return None
-
-    def update_amenity(self, amenity_id, amenity_data):
-        """
-        Met à jour une commodité (amenity) avec les nouvelles données.
-        """
-        from app.models.amenity import Amenity  # adapte le chemin si besoin
-        amenity = self.get_amenity(amenity_id)
-        if not amenity:
-            return None
-        for key, value in amenity_data.items():
-            setattr(amenity, key, value)
-        if hasattr(amenity, "save"):
-            amenity.save()
+        """Create a new amenity"""
+        amenity = Amenity(**amenity_data)
+        self.amenity_repo.add(amenity)
         return amenity
 
-    def update_review(self, review_id, review_data):
-        """
-        Met à jour un avis (review) avec les nouvelles données.
-        """
-        from app.models.review import Review  # adapte le chemin si besoin
-        review = self.get_review(review_id)
-        if not review:
-            return None
-        for key, value in review_data.items():
-            setattr(review, key, value)
-        if hasattr(review, "save"):
-            review.save()
-        return review
+    def get_all_amenities(self):
+        """Get all amenities"""
+        return self.amenity_repo.get_all()
 
-    def delete_place(self, place_id):
-        """
-        Supprime un lieu (place) selon son identifiant.
-        """
-        from app.models.place import Place  # adapte le chemin si besoin
-        place = self.get_place(place_id)
-        if not place:
-            return False
-        if hasattr(Place, "_places"):
-            Place._places.remove(place)
-        elif hasattr(place, "delete"):
-            place.delete()
-        return True
+    def get_amenity(self, amenity_id):
+        """Get an amenity by ID"""
+        return self.amenity_repo.get(amenity_id)
 
-    def delete_user(self, user_id):
-        """
-        Supprime un utilisateur selon son identifiant.
-        """
-        from app.models.user import User  # adapte le chemin si besoin
-        user = self.get_user(user_id)
-        if not user:
-            return False
-        if hasattr(User, "_users"):
-            User._users.remove(user)
-        elif hasattr(user, "delete"):
-            user.delete()
-        return True
+    def update_amenity(self, amenity_id, amenity_data):
+        """Update an amenity"""
+        return self.amenity_repo.update(amenity_id, amenity_data)
+
+    def delete_amenity(self, amenity_id):
+        """Delete an amenity"""
+        return self.amenity_repo.delete(amenity_id)
