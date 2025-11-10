@@ -99,3 +99,37 @@ class UserResource(Resource):
         if not facade.delete_user(user_id):
             api.abort(404, 'User not found')
         return '', 204
+
+@api.route('/<user_id>/places')
+class UserPlaces(Resource):
+    @jwt_required()
+    def get(self, user_id):
+        """Get all places owned by a user"""
+        places = facade.get_places_by_owner(user_id)
+        return [place.to_dict() for place in places], 200
+
+@api.route('/me/places')  
+class MyPlaces(Resource):
+    @jwt_required()
+    def get(self):
+        """Get current user's places"""
+        current_user_id = get_jwt_identity()
+        places = facade.get_places_by_owner(current_user_id)
+        return [place.to_dict() for place in places], 200
+
+@api.route('/<user_id>/reviews')
+class UserReviews(Resource):
+    @jwt_required()
+    def get(self, user_id):
+        """Get all reviews by a user"""
+        reviews = facade.get_reviews_by_user(user_id)
+        return [review.to_dict() for review in reviews], 200
+
+@api.route('/me/reviews')
+class MyReviews(Resource):
+    @jwt_required()
+    def get(self):
+        """Get current user's reviews"""
+        current_user_id = get_jwt_identity()
+        reviews = facade.get_reviews_by_user(current_user_id)
+        return [review.to_dict() for review in reviews], 200

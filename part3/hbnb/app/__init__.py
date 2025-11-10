@@ -64,7 +64,7 @@ def create_app(config_class='config.DevelopmentConfig'):
         version='1.0',
         title='HBnB API',
         description='HBnB Application API with JWT Authentication',
-        doc='/api/v1/',
+        doc='/',
         prefix='/api/v1',
         authorizations=authorizations
     )

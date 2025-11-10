@@ -67,3 +67,10 @@ class AmenityResource(Resource):
             }, 200
         except ValueError as e:
             return {'error': str(e)}, 400
+
+@api.route('/<amenity_id>/places')
+class AmenityPlaces(Resource):
+    def get(self, amenity_id):
+        """Get all places that have this amenity"""
+        places = facade.get_places_by_amenity(amenity_id)
+        return [place.to_dict() for place in places], 200

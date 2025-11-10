@@ -2,6 +2,12 @@ from app.extensions import db
 from app.models.base import BaseModel
 from sqlalchemy.orm import validates
 
+# Association table for many-to-many relationship between Place and Amenity
+place_amenity = db.Table('place_amenity',
+    db.Column('place_id', db.String(36), db.ForeignKey('places.id'), primary_key=True),
+    db.Column('amenity_id', db.String(36), db.ForeignKey('amenities.id'), primary_key=True)
+)
+
 
 class Amenity(BaseModel):
     """Amenity model for storing amenity information"""
@@ -10,8 +16,8 @@ class Amenity(BaseModel):
 
     name = db.Column(db.String(50), nullable=False, unique=True)
 
-    # Cette relation sera ajoutée plus tard
-    # places = relationship...
+    # Relationship
+    places = db.relationship('Place', secondary=place_amenity, back_populates='amenities')
 
     def __init__(self, name):
         """Initialize an Amenity instance"""

@@ -20,16 +20,26 @@ class HBnBFacade:
 
     # ========== USER METHODS ==========
     def create_user(self, user_data: Dict[str, Any]) -> User:
-        """Create a new user with hashed password"""
+        """Create a new user"""
+        # Vérifier si l'email existe déjà
+        existing_user = self.user_repo.get_by_attribute('email', user_data['email'])
+        if existing_user:
+            raise ValueError("Email already registered")
+        
+        # Créer l'utilisateur
         user = User(
             first_name=user_data['first_name'],
             last_name=user_data['last_name'],
             email=user_data['email'],
-            password=user_data['password'],
             is_admin=user_data.get('is_admin', False)
         )
+        
+        # Hash le password AVANT de sauvegarder
+        user.hash_password(user_data['password'])
+        
+        # Ajouter et retourner l'utilisateur créé
         self.user_repo.add(user)
-        return user
+        return user  # ← Retourner l'objet user au lieu du résultat de add()
 
     def get_user(self, user_id: str) -> Optional[User]:
         """Get a user by ID"""
@@ -37,7 +47,7 @@ class HBnBFacade:
 
     def get_user_by_email(self, email: str) -> Optional[User]:
         """Get a user by email address"""
-        return self.user_repo.get_user_by_email(email)
+        return self.user_repo.get_by_attribute('email', email)
 
     def get_all_users(self) -> List[User]:
         """Get all users"""
@@ -82,9 +92,18 @@ class HBnBFacade:
 
     def create_place(self, place_data):
         """Create a new place"""
-        place = Place(**place_data)
+        # Adapter selon les noms d'attributs de ton modèle Place
+        place = Place(
+            title=place_data['name'],  # name -> title
+            description=place_data['description'],
+            price=place_data['price_by_night'],  # price_by_night -> price
+            latitude=place_data.get('latitude', 0.0),  # valeur par défaut
+            longitude=place_data.get('longitude', 0.0),  # valeur par défaut
+            owner_id=place_data.get('user_id')  # user_id -> owner_id
+        )
+        
         self.place_repo.add(place)
-        return place
+        return place  # ← Correction ici aussi
 
     def get_all_places(self):
         """Get all places"""
@@ -105,18 +124,29 @@ class HBnBFacade:
     # ========== REVIEW METHODS ==========
     def create_review(self, review_data):
         """Create a new review"""
-        review = Review(**review_data)
+        review = Review(
+            text=review_data['text'],
+            rating=review_data['rating'],
+            place_id=review_data['place_id'],
+            user_id=review_data['user_id']
+        )
+        
         self.review_repo.add(review)
-        return review
+        return review  # ← Et ici
 
     def get_all_reviews(self):
         """Get all reviews"""
         return self.review_repo.get_all()
 
-    def get_reviews_by_place(self, place_id):
-        """Get reviews for a specific place"""
-        all_reviews = self.review_repo.get_all()
-        return [r for r in all_reviews if r.place_id == place_id]
+    def get_reviews_by_user(self, user_id: str) -> List[Review]:
+        """Get all reviews by a user"""
+        reviews = self.review_repo.get_all()
+        return [review for review in reviews if review.user_id == user_id]
+
+    def get_reviews_by_place(self, place_id: str) -> List[Review]:
+        """Get all reviews for a place"""
+        reviews = self.review_repo.get_all()
+        return [review for review in reviews if review.place_id == place_id]
 
     def get_review(self, review_id):
         """Get a review by ID"""
@@ -133,7 +163,8 @@ class HBnBFacade:
     # ========== AMENITY METHODS ==========
     def create_amenity(self, amenity_data):
         """Create a new amenity"""
-        amenity = Amenity(**amenity_data)
+        amenity = Amenity(name=amenity_data['name'])  # ← Passer le name en argument
+        
         self.amenity_repo.add(amenity)
         return amenity
 
@@ -152,3 +183,52 @@ class HBnBFacade:
     def delete_amenity(self, amenity_id):
         """Delete an amenity"""
         return self.amenity_repo.delete(amenity_id)
+
+    # ========== ADDITIONAL METHODS ==========
+    def get_places_by_owner(self, user_id: str):
+        """Get all places owned by a user"""
+        places = self.place_repo.get_all()
+        return [place for place in places if place.owner_id == user_id]
+
+    def get_reviews_by_user(self, user_id: str):
+        """Get all reviews by a user"""  
+        reviews = self.review_repo.get_all()
+        return [review for review in reviews if review.user_id == user_id]
+
+    def get_reviews_by_place(self, place_id: str):
+        """Get all reviews for a place"""
+        reviews = self.review_repo.get_all()
+        return [review for review in reviews if review.place_id == place_id]
+
+    def get_place_amenities(self, place_id: str):
+        """Get all amenities for a place"""
+        place = self.place_repo.get(place_id)
+        if place and hasattr(place, 'amenities'):
+            return place.amenities
+        return []
+
+    def get_places_by_amenity(self, amenity_id: str):
+        """Get all places that have this amenity"""
+        amenity = self.amenity_repo.get(amenity_id)
+        if amenity and hasattr(amenity, 'places'):
+            return amenity.places
+        return []
+
+    def add_amenity_to_place(self, place_id: str, amenity_id: str) -> bool:
+        """Add an amenity to a place (Many-to-Many)"""
+        try:
+            place = self.place_repo.get(place_id)
+            amenity = self.amenity_repo.get(amenity_id)
+            
+            if place and amenity:
+                # Vérifier si la relation existe déjà
+                if hasattr(place, 'amenities') and amenity not in place.amenities:
+                    place.amenities.append(amenity)
+                    # Force save
+                    from app.extensions import db
+                    db.session.commit()
+                    return True
+            return False
+        except Exception as e:
+            print(f"Error adding amenity to place: {e}")
+            return False

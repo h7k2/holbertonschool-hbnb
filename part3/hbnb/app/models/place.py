@@ -13,11 +13,11 @@ class Place(BaseModel):
     price = db.Column(db.Float, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
-    owner_id = db.Column(db.String(36), nullable=False)  # Temporaire, relation ajoutée plus tard
+    owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
 
-    # Ces attributs seront ajoutés plus tard avec les relations
-    # amenities = relationship...
-    # reviews = relationship...
+    # Relationships
+    reviews = db.relationship('Review', backref='place', lazy=True, cascade='all, delete-orphan')
+    amenities = db.relationship('Amenity', secondary='place_amenity', back_populates='places', lazy='subquery')
 
     def __init__(self, title, description, price, latitude, longitude, owner_id):
         """Initialize a Place instance"""

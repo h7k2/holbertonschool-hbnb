@@ -1,54 +1,35 @@
+from sqlalchemy import Column, String, Boolean, DateTime
+from sqlalchemy.orm import relationship
 from app.extensions import db, bcrypt
-from app.models.base import BaseModel
-from sqlalchemy.orm import validates
+from datetime import datetime
+import uuid
 
-
-class User(BaseModel):
-    """User model for storing user information"""
-    
+class User(db.Model):
     __tablename__ = 'users'
     
-    first_name = db.Column(db.String(50), nullable=False)
-    last_name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
-    password_hash = db.Column(db.String(128), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    first_name = Column(String(50), nullable=False)
+    last_name = Column(String(50), nullable=False)
+    email = Column(String(120), nullable=False, unique=True)
+    password = Column(String(128), nullable=False)  # ← Ajouter cette ligne
+    is_admin = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    def __init__(self, first_name, last_name, email, password, is_admin=False):
-        """Initialize a User instance"""
-        super().__init__()
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.is_admin = is_admin
-        self.hash_password(password)
+    # Relations
+    places = relationship('Place', backref='user', lazy='select', cascade='all, delete-orphan')
+    reviews = relationship('Review', backref='user', lazy='select', cascade='all, delete-orphan')
 
     def hash_password(self, password):
-        """Hash the password before storing it"""
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-
-    def verify_password(self, password):
-        """Verify the hashed password"""
-        return bcrypt.check_password_hash(self.password_hash, password)
-
-    @validates('email')
-    def validate_email(self, key, email):
-        """Validate email format"""
-        if not email or '@' not in email:
-            raise ValueError("Invalid email format")
-        return email.lower()
-
-    @validates('first_name', 'last_name')
-    def validate_name(self, key, value):
-        """Validate name fields are not empty"""
-        if not value or not value.strip():
-            raise ValueError(f"{key} cannot be empty")
-        if len(value) > 50:
-            raise ValueError(f"{key} cannot exceed 50 characters")
-        return value.strip()
+        """Hash password using bcrypt"""
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+    
+    def check_password(self, password):
+        """Check password against hash"""
+        return bcrypt.check_password_hash(self.password, password)
 
     def to_dict(self):
-        """Convert User instance to dictionary"""
+        """Convert to dictionary (sans password pour sécurité)"""
         return {
             'id': self.id,
             'first_name': self.first_name,
@@ -60,5 +41,4 @@ class User(BaseModel):
         }
 
     def __repr__(self):
-        """String representation of User"""
-        return f"<User {self.email}>"
+        return f'<User {self.email}>'
