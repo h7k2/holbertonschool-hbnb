@@ -1,246 +1,145 @@
-
+![HBnB - Auth & DB Banner](image/HBnB%20-%20Auth%20&%20DB.jpg)
 
 🏠 HBnB – Part 3: Authentication & Database Integration
-📘 Project Overview
 
-HBnB – Part 3 marks the transition of the HBnB application from a simple in-memory prototype to a secure and persistent backend powered by Flask, JWT authentication, and SQLAlchemy ORM.
-This stage introduces user authentication, authorization, and database integration to prepare the system for real-world deployment.
+Welcome to Part 3 of HBnB. In this stage, we move from an in-memory prototype to a secure and persistent backend using Flask, JWT, and SQLAlchemy. We add user authentication, authorization (RBAC), and database integration (SQLite in development, MySQL in production).
 
-🚀 Objectives
-🔐 Authentication & Authorization
+## 🎯 Objectives
 
-Implement JWT-based authentication using flask-jwt-extended.
+- JWT authentication with `flask-jwt-extended`
+- Role-based access control using the `is_admin` attribute
+- Replace in-memory storage with a database (SQLite for development, prepare MySQL for production)
+- Full persistence for entities: User, Place, Review, Amenity
+- Data validation and constraints enforcement
 
-Introduce role-based access control (RBAC) using an is_admin attribute.
+## 🧠 Learning goals
 
-Protect private routes and allow only authenticated users or admins to access them.
+- Implement JWT authentication and manage sessions at the API level
+- Apply RBAC (role-based access control)
+- Use SQLAlchemy for ORM mapping, queries, and relationships
+- Configure SQLite (dev) and prepare MySQL (prod)
+- Visualize the relational schema (Mermaid.js) and document the architecture
 
-🗃️ Database Integration
+## 🧱 Project structure
 
-Replace the in-memory storage with SQLite for development.
-
-Prepare configuration for MySQL in production.
-
-Use SQLAlchemy to map entities and manage database persistence.
-
-⚙️ CRUD Operations & Persistence
-
-Refactor all CRUD endpoints to interact with the database.
-
-Ensure that all entities — User, Place, Review, and Amenity — are stored persistently.
-
-🧩 Data Modeling & Validation
-
-Design the relational schema using Mermaid.js.
-
-Enforce validation and integrity rules for all data models.
-
-🧠 Learning Objectives
-
-By the end of this project, you will be able to:
-
-Implement secure JWT authentication and manage user sessions.
-
-Apply role-based authorization to protect API endpoints.
-
-Use SQLAlchemy ORM for model mapping, queries, and relationships.
-
-Integrate SQLite for development and configure MySQL for production.
-
-Design and visualize ER diagrams with Mermaid.js.
-
-Build a scalable, secure, and persistent backend architecture.
-
-🧱 Project Structure
+```
 part3/
-├── app/
-│   ├── __init__.py          # Application factory
-│   ├── config.py            # Config classes (Development, Production)
-│   ├── models/              # SQLAlchemy models (User, Place, Review, Amenity)
-│   ├── repository/          # SQLAlchemyRepository implementation
-│   ├── services/            # Business logic & Facade layer
-│   ├── api/                 # Flask-RestX namespaces & routes
-│   └── utils/               # JWT, auth decorators, and helpers
-│
-├── instance/
-│   └── hbnb.sqlite3         # SQLite database (dev)
-│
-├── run.py                   # Entry point for Flask app
-├── requirements.txt         # Dependencies
-├── README.md                # Project documentation
-└── er_diagram.mmd           # Mermaid.js Entity Relationship Diagram
+	hbnb/
+		app/
+			__init__.py        # Application Factory
+			extensions.py       # (if present) Flask/JWT/DB extensions
+			api/                # Flask-RestX namespaces & routes
+			models/             # SQLAlchemy models (User, Place, Review, Amenity, Base)
+			persistence/        # SQLAlchemy repositories
+			services/           # Business logic & Facade
+		run.py                # Flask app entry point
+		config.py             # Dev/Prod configurations
+		requirements.txt      # Dependencies
+	instance/
+		hbnb.sqlite3          # SQLite database (dev)
+	README.md               # Documentation (this file)
+```
 
-🧩 Key Tasks
-#	Task	Description
-0	Modify Application Factory	Add configuration support to create_app()
-1	Password Hashing	Securely store passwords with bcrypt
-2	JWT Authentication	Implement login & token-based protection
-3	Authenticated User Endpoints	Restrict actions to logged-in users
-4	Admin Endpoints	Role-based access for administrators
-5	SQLAlchemy Repository	Replace in-memory repo with DB-based repo
-6	Map User Entity	Define User model and integrate CRUD operations
-7	Map Place, Review, Amenity	Map additional entities to the DB
-8	Relationships	Add foreign keys and entity relationships
-9	SQL Scripts	Generate tables and populate with initial data
-10	ER Diagram	Create a visual Mermaid.js database schema
-🧰 Technologies Used
+## ⚙️ Prerequisites & Setup (Linux/Bash)
 
-Python 3.10+
+1) Clone the repo and go to `part3/hbnb`
+2) Create a Python 3.10+ virtual environment
+3) Install dependencies from `hbnb/requirements.txt`
+4) Run the app with `hbnb/run.py`
 
-Flask 3.x
+The app starts by default at: http://127.0.0.1:5000/
 
-Flask-JWT-Extended
+Tip: `hbnb/config.py` controls the configuration (development/production) used by the Application Factory.
 
-Flask-Bcrypt
+## 🔐 Authentication & Roles
 
-Flask-SQLAlchemy
+- Sign up: `POST /api/v1/users/` (password hashed with bcrypt, never returned in responses)
+- Login: `POST /api/v1/login/` (returns a JWT)
+- Protected access: add the header `Authorization: Bearer <token>`
+- RBAC: admin-only endpoints require `is_admin = True`
 
-SQLite / MySQL
+## 🧩 Endpoints (examples)
 
-Mermaid.js (for ER diagrams)
+- Public
+	- `POST /api/v1/users/` — create a user (sign up)
+	- `POST /api/v1/login/` — authenticate (JWT)
+	- `GET /api/v1/places/` — list places
 
-RESTful API architecture
+- Authenticated
+	- `POST /api/v1/places/` — create a place (owner = current user)
+	- `PUT /api/v1/users/<id>` — update own profile (except email/password)
+	- `DELETE /api/v1/places/<id>` — delete a place (owner or admin)
+	- `POST /api/v1/reviews/` — create a review (not on your own place, no duplicates)
 
-⚙️ Installation & Setup
-1️⃣ Clone the repository
-git clone https://github.com/holbertonschool-hbnb.git
-cd holbertonschool-hbnb/part3
+- Administrator
+	- Create/update any user (including email/password)
+	- Add/update amenities
+	- Bypass ownership restrictions (places/reviews)
 
-2️⃣ Create a virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
+## 🧰 Technologies
 
-3️⃣ Install dependencies
-pip install -r requirements.txt
+- Python 3.10+
+- Flask 3.x, Flask-RESTX
+- Flask-JWT-Extended, Flask-Bcrypt, Flask-SQLAlchemy
+- SQLite (dev) / MySQL (prod)
+- Mermaid.js (ER diagrams)
 
-4️⃣ Run the Flask app
-python3 run.py
+## 📚 Task plan (Part 3)
 
+0) Application Factory & Configuration
+- Update `create_app()` to accept a config object and initialize extensions.
 
-The app will start on:
+1) Password hashing (bcrypt)
+- Secure password storage; field accepted in POST /users/; never returned by GET.
 
-http://127.0.0.1:5000/
+2) JWT authentication
+- Login, token generation/validation, claims like `is_admin` for authorization.
 
-🔐 Authentication Workflow
+3) Authenticated user access
+- Secure create/update/delete (places, reviews) with ownership checks and business rules.
 
-User Registration → POST /api/v1/users/
+4) Administrator access
+- Admin-only endpoints: create/update users, amenities, bypass ownership restrictions.
 
-Creates a new user and stores a hashed password.
+5) SQLAlchemy repository
+- Replace the in-memory repository with a SQLAlchemy-based implementation.
 
-User Login → POST /api/v1/login/
+6) User model mapping
+- Map `Base`/`BaseModel` + `User` (first_name, last_name, unique email, hashed password, is_admin) and implement `UserRepository`.
 
-Returns a JWT token.
+7) Place, Review, Amenity mapping
+- Map basic attributes and CRUD, without relationships yet.
 
-Protected Routes
+8) Relationships between entities
+- Define FKs and relationships (One-to-Many, Many-to-Many) among User, Place, Review, Amenity.
 
-Must include Authorization: Bearer <token> header.
+9) SQL scripts
+- Generate the full schema and insert seed data (admin, amenities) for testing.
 
-Role-based Access
+10) ER diagrams
+- Produce an ERD with Mermaid.js and include it in the documentation.
 
-Admin endpoints restricted to users with is_admin = True.
+## 🗺️ Database diagram
 
-🧮 Example API Endpoints
-Method	Endpoint	Description	Auth Required
-POST	/api/v1/users/	Register new user	❌
-POST	/api/v1/login/	Authenticate and get JWT	❌
-GET	/api/v1/places/	List all places	❌
-POST	/api/v1/places/	Create new place	✅
-PUT	/api/v1/users/<id>	Update user info	✅
-DELETE	/api/v1/places/<id>	Delete place (owner/admin)	✅
-GET	/api/v1/amenities/	List all amenities	❌
-POST	/api/v1/amenities/	Add amenity (admin only)	🔒
-🗺️ Database Schema (Mermaid.js)
-erDiagram
-    USER {
-        UUID id PK
-        STRING first_name
-        STRING last_name
-        STRING email UNIQUE
-        STRING password
-        BOOLEAN is_admin
-    }
+![ER Diagram](../image/diagramme.png)
 
-    PLACE {
-        UUID id PK
-        STRING name
-        TEXT description
-        FLOAT price
-        UUID user_id FK
-    }
+The diagram above shows the main entities (User, Place, Review, Amenity) and their relationships (e.g., a User owns many Places, a Place has many Reviews, Place ↔ Amenity is many-to-many).
 
-    REVIEW {
-        UUID id PK
-        TEXT comment
-        INT rating
-        UUID user_id FK
-        UUID place_id FK
-    }
+## 🧪 Quick checks (examples)
 
-    AMENITY {
-        UUID id PK
-        STRING name
-    }
+- Sign up a user, then log in to get a JWT.
+- Call a protected endpoint with `Authorization: Bearer <token>`.
+- Verify that:
+	- you cannot create/update/delete resources without a JWT,
+	- a user can only modify their own data (except admins),
+	- business rules are enforced (no reviews on your own place, no duplicates).
 
-    PLACE ||--o{ REVIEW : has
-    USER ||--o{ PLACE : owns
-    USER ||--o{ REVIEW : writes
-    PLACE }o--o{ AMENITY : features
+## 🙌 Team
 
-👥 Team Members
+- Heytem Keddous (h7k2)
+- Zaccaria Azladji
+- (Team project — Holberton School)
 
-Heytem Keddous
+## 📄 License
 
-Zaccaria Azladji
-
-
-🧾 License
-
-This project is part of the Holberton School curriculum and follows its academic license and collaboration rules.
-
-erDiagram
-    USER {
-        int id PK
-        string first_name
-        string last_name
-        string email
-        string password
-        boolean is_admin
-        datetime created_at
-        datetime updated_at
-    }
-    PLACE {
-        int id PK
-        string title
-        string description
-        decimal price
-        decimal latitude
-        decimal longitude
-        int owner_id FK
-        datetime created_at
-        datetime updated_at
-    }
-    REVIEW {
-        int id PK
-        string text
-        int rating
-        int user_id FK
-        int place_id FK
-        datetime created_at
-        datetime updated_at
-    }
-    AMENITY {
-        int id PK
-        string name
-        datetime created_at
-        datetime updated_at
-    }
-    PLACE_AMENITY {
-        int place_id PK,FK
-        int amenity_id PK,FK
-    }
-
-    USER ||--o{ PLACE : owns
-    USER ||--o{ REVIEW : writes
-    PLACE ||--o{ REVIEW : receives
-    PLACE ||--o{ PLACE_AMENITY : has
-    AMENITY ||--o{ PLACE_AMENITY : includes
+Academic project within the Holberton School curriculum. Please follow the collaboration rules and license associated with the project.
