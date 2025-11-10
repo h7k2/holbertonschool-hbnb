@@ -142,4 +142,4 @@ The diagram above shows the main entities (User, Place, Review, Amenity) and the
 
 ## 📄 License
 
-Academic project within the Holberton School curriculum. Please follow the collaboration rules and license associated with the Project.
+Academic project within the Holberton School curriculum. Please follow the collaboration rules and license associated with the Project
