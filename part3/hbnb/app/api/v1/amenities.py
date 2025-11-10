@@ -1,7 +1,8 @@
 from flask_restx import Namespace, Resource, fields
-from app.api.v1 import facade
+from app.services.facade import HBnBFacade  # Import direct !
 
 api = Namespace('amenities', description='Amenity operations')
+facade = HBnBFacade()  # Instance locale
 
 # Define the amenity model for input validation and documentation
 amenity_model = api.model('Amenity', {
@@ -24,6 +25,11 @@ class AmenityList(Resource):
             }, 201
         except ValueError as e:
             return {'error': str(e)}, 400
+        except Exception as e:
+            # ✅ AJOUT : Gérer les contraintes UNIQUE
+            if 'UNIQUE constraint failed' in str(e):
+                return {'error': f'Amenity with name "{amenity_data.get("name")}" already exists'}, 409
+            return {'error': 'Internal server error'}, 500
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
@@ -68,7 +74,7 @@ class AmenityResource(Resource):
         except ValueError as e:
             return {'error': str(e)}, 400
 
-@api.route('/<amenity_id>/places')
+@api.route('/<amenity_id>/places/')
 class AmenityPlaces(Resource):
     def get(self, amenity_id):
         """Get all places that have this amenity"""

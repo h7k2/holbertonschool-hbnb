@@ -100,7 +100,7 @@ class UserResource(Resource):
             api.abort(404, 'User not found')
         return '', 204
 
-@api.route('/<user_id>/places')
+@api.route('/<user_id>/places/')
 class UserPlaces(Resource):
     @jwt_required()
     def get(self, user_id):

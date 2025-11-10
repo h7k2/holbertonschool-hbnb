@@ -92,18 +92,18 @@ class HBnBFacade:
 
     def create_place(self, place_data):
         """Create a new place"""
-        # Adapter selon les noms d'attributs de ton modèle Place
+        # Corriger : utiliser 'title' pas 'name'
         place = Place(
-            title=place_data['name'],  # name -> title
-            description=place_data['description'],
-            price=place_data['price_by_night'],  # price_by_night -> price
-            latitude=place_data.get('latitude', 0.0),  # valeur par défaut
-            longitude=place_data.get('longitude', 0.0),  # valeur par défaut
-            owner_id=place_data.get('user_id')  # user_id -> owner_id
+            title=place_data['title'],  # ✅ 'title' pas 'name'
+            description=place_data.get('description', ''),
+            price=place_data['price'],
+            latitude=place_data['latitude'],
+            longitude=place_data['longitude'],
+            owner_id=place_data['owner_id']
         )
         
         self.place_repo.add(place)
-        return place  # ← Correction ici aussi
+        return place
 
     def get_all_places(self):
         """Get all places"""
@@ -214,21 +214,23 @@ class HBnBFacade:
             return amenity.places
         return []
 
-    def add_amenity_to_place(self, place_id: str, amenity_id: str) -> bool:
-        """Add an amenity to a place (Many-to-Many)"""
+    def add_amenity_to_place(self, place_id, amenity_id):
+        """Add an amenity to a place (Many-to-Many relationship)"""
         try:
-            place = self.place_repo.get(place_id)
-            amenity = self.amenity_repo.get(amenity_id)
+            place = self.get_place(place_id)
+            amenity = self.get_amenity(amenity_id)
             
-            if place and amenity:
-                # Vérifier si la relation existe déjà
-                if hasattr(place, 'amenities') and amenity not in place.amenities:
-                    place.amenities.append(amenity)
-                    # Force save
-                    from app.extensions import db
-                    db.session.commit()
-                    return True
-            return False
+            if not place or not amenity:
+                return False
+            
+            # ✅ CORRECTION : Si déjà présente, retourner True !
+            if amenity in place.amenities:
+                return True  # ✅ Succès ! Déjà ajoutée
+            
+            # Ajouter si pas présente
+            place.amenities.append(amenity)
+            self.place_repo.update(place)
+            return True
+            
         except Exception as e:
-            print(f"Error adding amenity to place: {e}")
             return False
