@@ -121,7 +121,7 @@ Tip: `hbnb/config.py` controls the configuration (development/production) used b
 
 ## 🗺️ Database diagram
 
-![ER Diagram](../image/diagramme.jpg)
+![ER Diagram](image/diagramme.jpg)
 
 The diagram above shows the main entities (User, Place, Review, Amenity) and their relationships (e.g., a User owns many Places, a Place has many Reviews, Place ↔ Amenity is many-to-many).
 
@@ -132,7 +132,7 @@ The diagram above shows the main entities (User, Place, Review, Amenity) and the
 - Verify that:
 	- you cannot create/update/delete resources without a JWT,
 	- a user can only modify their own data (except admins),
-	- business rules are enforced (no reviews on your own place, no duplicates).
+	- business rules are enforced (no reviews on your own place, no duplicates)
 
 ## 🙌 Team
 
