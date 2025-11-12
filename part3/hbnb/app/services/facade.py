@@ -21,32 +21,16 @@ class HBnBFacade:
     # ========== USER METHODS ==========
     def create_user(self, user_data: Dict[str, Any]) -> User:
         """Create a new user"""
-        # Vérifier si l'email existe déjà
-        existing_user = self.user_repo.get_by_attribute('email', user_data['email'])
-        if existing_user:
-            raise ValueError("Email already registered")
-        
-        # Créer l'utilisateur
-        user = User(
-            first_name=user_data['first_name'],
-            last_name=user_data['last_name'],
-            email=user_data['email'],
-            is_admin=user_data.get('is_admin', False)
-        )
-        
-        # Hash le password AVANT de sauvegarder
-        user.hash_password(user_data['password'])
-        
-        # Ajouter et retourner l'utilisateur créé
+        user = User(**user_data)
         self.user_repo.add(user)
-        return user  # ← Retourner l'objet user au lieu du résultat de add()
+        return user
 
     def get_user(self, user_id: str) -> Optional[User]:
-        """Get a user by ID"""
+        """Get user by ID"""
         return self.user_repo.get(user_id)
 
     def get_user_by_email(self, email: str) -> Optional[User]:
-        """Get a user by email address"""
+        """Get user by email"""
         return self.user_repo.get_by_attribute('email', email)
 
     def get_all_users(self) -> List[User]:
@@ -54,183 +38,194 @@ class HBnBFacade:
         return self.user_repo.get_all()
 
     def update_user(self, user_id: str, user_data: Dict[str, Any]) -> Optional[User]:
-        """Update a user"""
-        user = self.get_user(user_id)
+        """Update user"""
+        user = self.user_repo.get(user_id)
         if not user:
             return None
         
-        # Update only allowed fields
-        if 'first_name' in user_data:
-            user.first_name = user_data['first_name']
-        if 'last_name' in user_data:
-            user.last_name = user_data['last_name']
-        if 'email' in user_data:
-            # Check if email is already taken
-            existing = self.get_user_by_email(user_data['email'])
-            if existing and existing.id != user_id:
-                raise ValueError('Email already registered')
-            user.email = user_data['email']
-        if 'password' in user_data:
-            user.hash_password(user_data['password'])
+        for key, value in user_data.items():
+            if hasattr(user, key) and key not in ['id', 'created_at']:
+                setattr(user, key, value)
         
+        self.user_repo.update(user_id, user_data)
         return user
 
     def delete_user(self, user_id: str) -> bool:
-        """Delete a user"""
-        return self.user_repo.delete(user_id)
+        """Delete user"""
+        user = self.user_repo.get(user_id)
+        if not user:
+            return False
+        self.user_repo.delete(user_id)
+        return True
 
     # ========== PLACE METHODS ==========
     def place_with_related(self, place_id: str) -> Dict[str, Any]:
-        """Get place with related data"""
-        place = self.get_place(place_id)
+        """Get place with related data (owner, amenities, reviews)"""
+        place = self.place_repo.get(place_id)
         if not place:
             return None
         
         place_dict = place.to_dict()
-        # Add related data if needed
+        place_dict['owner'] = place.owner.to_dict() if place.owner else None
+        place_dict['amenities'] = [a.to_dict() for a in place.amenities]
+        place_dict['reviews'] = [r.to_dict() for r in place.reviews]
+        
         return place_dict
 
-    def create_place(self, place_data):
+    def create_place(self, place_data: Dict[str, Any]) -> Place:
         """Create a new place"""
-        # Corriger : utiliser 'title' pas 'name'
-        place = Place(
-            title=place_data['title'],  # ✅ 'title' pas 'name'
-            description=place_data.get('description', ''),
-            price=place_data['price'],
-            latitude=place_data['latitude'],
-            longitude=place_data['longitude'],
-            owner_id=place_data['owner_id']
-        )
+        owner_id = place_data.get('owner_id')
+        if not owner_id:
+            raise ValueError("Owner ID is required")
         
+        owner = self.user_repo.get(owner_id)
+        if not owner:
+            raise ValueError("Owner not found")
+        
+        place = Place(**place_data)
         self.place_repo.add(place)
         return place
 
-    def get_all_places(self):
+    def get_all_places(self) -> List[Place]:
         """Get all places"""
         return self.place_repo.get_all()
 
-    def get_place(self, place_id):
-        """Get a place by ID"""
+    def get_place(self, place_id: str) -> Optional[Place]:
+        """Get place by ID"""
         return self.place_repo.get(place_id)
 
-    def update_place(self, place_id, place_data):
-        """Update a place"""
-        return self.place_repo.update(place_id, place_data)
+    def update_place(self, place_id: str, place_data: Dict[str, Any]) -> Optional[Place]:
+        """Update place"""
+        place = self.place_repo.get(place_id)
+        if not place:
+            return None
+        
+        for key, value in place_data.items():
+            if hasattr(place, key) and key not in ['id', 'created_at', 'owner_id']:
+                setattr(place, key, value)
+        
+        self.place_repo.update(place_id, place_data)
+        return place
 
-    def delete_place(self, place_id):
-        """Delete a place"""
-        return self.place_repo.delete(place_id)
+    def delete_place(self, place_id: str) -> bool:
+        """Delete place"""
+        place = self.place_repo.get(place_id)
+        if not place:
+            return False
+        self.place_repo.delete(place_id)
+        return True
+
+    def get_place_amenities(self, place_id: str) -> List[Amenity]:
+        """Get all amenities for a place"""
+        place = self.place_repo.get(place_id)
+        if not place:
+            return []
+        return place.amenities
+
+    def add_amenity_to_place(self, place_id: str, amenity_id: str) -> bool:
+        """Add an amenity to a place"""
+        place = self.place_repo.get(place_id)
+        amenity = self.amenity_repo.get(amenity_id)
+        
+        if not place or not amenity:
+            return False
+        
+        if amenity not in place.amenities:
+            place.amenities.append(amenity)
+            self.place_repo.update(place_id, {})
+        
+        return True
 
     # ========== REVIEW METHODS ==========
-    def create_review(self, review_data):
+    def create_review(self, review_data: Dict[str, Any]) -> Review:
         """Create a new review"""
-        review = Review(
-            text=review_data['text'],
-            rating=review_data['rating'],
-            place_id=review_data['place_id'],
-            user_id=review_data['user_id']
-        )
+        place_id = review_data.get('place_id')
+        user_id = review_data.get('user_id')
         
+        if not place_id or not user_id:
+            raise ValueError("Place ID and User ID are required")
+        
+        place = self.place_repo.get(place_id)
+        user = self.user_repo.get(user_id)
+        
+        if not place:
+            raise ValueError("Place not found")
+        if not user:
+            raise ValueError("User not found")
+        
+        review = Review(**review_data)
         self.review_repo.add(review)
-        return review  # ← Et ici
+        return review
 
-    def get_all_reviews(self):
+    def get_all_reviews(self) -> List[Review]:
         """Get all reviews"""
         return self.review_repo.get_all()
 
     def get_reviews_by_user(self, user_id: str) -> List[Review]:
         """Get all reviews by a user"""
-        reviews = self.review_repo.get_all()
-        return [review for review in reviews if review.user_id == user_id]
+        return self.review_repo.get_by_attribute('user_id', user_id)
 
     def get_reviews_by_place(self, place_id: str) -> List[Review]:
         """Get all reviews for a place"""
-        reviews = self.review_repo.get_all()
-        return [review for review in reviews if review.place_id == place_id]
+        return self.review_repo.get_by_attribute('place_id', place_id)
 
-    def get_review(self, review_id):
-        """Get a review by ID"""
+    def get_review(self, review_id: str) -> Optional[Review]:
+        """Get review by ID"""
         return self.review_repo.get(review_id)
 
-    def update_review(self, review_id, review_data):
-        """Update a review"""
-        return self.review_repo.update(review_id, review_data)
+    def update_review(self, review_id: str, review_data: Dict[str, Any]) -> Optional[Review]:
+        """Update review"""
+        review = self.review_repo.get(review_id)
+        if not review:
+            return None
+        
+        for key, value in review_data.items():
+            if hasattr(review, key) and key not in ['id', 'created_at', 'user_id', 'place_id']:
+                setattr(review, key, value)
+        
+        self.review_repo.update(review_id, review_data)
+        return review
 
-    def delete_review(self, review_id):
-        """Delete a review"""
-        return self.review_repo.delete(review_id)
+    def delete_review(self, review_id: str) -> bool:
+        """Delete review"""
+        review = self.review_repo.get(review_id)
+        if not review:
+            return False
+        self.review_repo.delete(review_id)
+        return True
 
     # ========== AMENITY METHODS ==========
-    def create_amenity(self, amenity_data):
+    def create_amenity(self, amenity_data: Dict[str, Any]) -> Amenity:
         """Create a new amenity"""
-        amenity = Amenity(name=amenity_data['name'])  # ← Passer le name en argument
-        
+        amenity = Amenity(**amenity_data)
         self.amenity_repo.add(amenity)
         return amenity
 
-    def get_all_amenities(self):
+    def get_all_amenities(self) -> List[Amenity]:
         """Get all amenities"""
         return self.amenity_repo.get_all()
 
-    def get_amenity(self, amenity_id):
-        """Get an amenity by ID"""
+    def get_amenity(self, amenity_id: str) -> Optional[Amenity]:
+        """Get amenity by ID"""
         return self.amenity_repo.get(amenity_id)
 
-    def update_amenity(self, amenity_id, amenity_data):
-        """Update an amenity"""
-        return self.amenity_repo.update(amenity_id, amenity_data)
-
-    def delete_amenity(self, amenity_id):
-        """Delete an amenity"""
-        return self.amenity_repo.delete(amenity_id)
-
-    # ========== ADDITIONAL METHODS ==========
-    def get_places_by_owner(self, user_id: str):
-        """Get all places owned by a user"""
-        places = self.place_repo.get_all()
-        return [place for place in places if place.owner_id == user_id]
-
-    def get_reviews_by_user(self, user_id: str):
-        """Get all reviews by a user"""  
-        reviews = self.review_repo.get_all()
-        return [review for review in reviews if review.user_id == user_id]
-
-    def get_reviews_by_place(self, place_id: str):
-        """Get all reviews for a place"""
-        reviews = self.review_repo.get_all()
-        return [review for review in reviews if review.place_id == place_id]
-
-    def get_place_amenities(self, place_id: str):
-        """Get all amenities for a place"""
-        place = self.place_repo.get(place_id)
-        if place and hasattr(place, 'amenities'):
-            return place.amenities
-        return []
-
-    def get_places_by_amenity(self, amenity_id: str):
-        """Get all places that have this amenity"""
+    def update_amenity(self, amenity_id: str, amenity_data: Dict[str, Any]) -> Optional[Amenity]:
+        """Update amenity"""
         amenity = self.amenity_repo.get(amenity_id)
-        if amenity and hasattr(amenity, 'places'):
-            return amenity.places
-        return []
+        if not amenity:
+            return None
+        
+        for key, value in amenity_data.items():
+            if hasattr(amenity, key) and key not in ['id', 'created_at']:
+                setattr(amenity, key, value)
+        
+        self.amenity_repo.update(amenity_id, amenity_data)
+        return amenity
 
-    def add_amenity_to_place(self, place_id, amenity_id):
-        """Add an amenity to a place (Many-to-Many relationship)"""
-        try:
-            place = self.get_place(place_id)
-            amenity = self.get_amenity(amenity_id)
-            
-            if not place or not amenity:
-                return False
-            
-            # ✅ CORRECTION : Si déjà présente, retourner True !
-            if amenity in place.amenities:
-                return True  # ✅ Succès ! Déjà ajoutée
-            
-            # Ajouter si pas présente
-            place.amenities.append(amenity)
-            self.place_repo.update(place)
-            return True
-            
-        except Exception as e:
+    def delete_amenity(self, amenity_id: str) -> bool:
+        """Delete amenity"""
+        amenity = self.amenity_repo.get(amenity_id)
+        if not amenity:
             return False
+        self.amenity_repo.delete(amenity_id)
+        return True
