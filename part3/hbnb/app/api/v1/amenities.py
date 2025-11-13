@@ -17,10 +17,11 @@ class AmenityList(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def post(self):
-        """Register a new amenity (admin only)"""
+        """Register a new amenity (owner or admin only)"""
         claims = get_jwt()
-        if not claims.get('is_admin', False):
-            return {'error': 'Admin privileges required'}, 403
+        # Autoriser si admin ou owner (is_owner dans claims)
+        if not (claims.get('is_admin', False) or claims.get('is_owner', False)):
+            return {'error': 'Owner or admin privileges required'}, 403
         amenity_data = api.payload
         try:
             new_amenity = facade.create_amenity(amenity_data)

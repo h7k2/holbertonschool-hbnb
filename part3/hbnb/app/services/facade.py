@@ -20,8 +20,10 @@ class HBnBFacade:
 
     # ========== USER METHODS ==========
     def create_user(self, user_data: Dict[str, Any]) -> User:
-        """Create a new user"""
+        """Create a new user (hash password before saving)"""
         user = User(**user_data)
+        if 'password' in user_data:
+            user.hash_password(user_data['password'])
         self.user_repo.add(user)
         return user
 
@@ -229,3 +231,11 @@ class HBnBFacade:
             return False
         self.amenity_repo.delete(amenity_id)
         return True
+
+    def has_user_reviewed_place(self, user_id: str, place_id: str) -> bool:
+        """Return True if the user has already reviewed the place"""
+        reviews = self.review_repo.get_all()
+        for review in reviews:
+            if review.user_id == user_id and review.place_id == place_id:
+                return True
+        return False
