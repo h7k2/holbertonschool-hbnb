@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from app.services.facade import HBnBFacade
 
 api = Namespace('places', description='Place operations')
@@ -52,17 +52,31 @@ class PlaceResource(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def put(self, place_id):
-        """Update a place"""
+        """Update a place (owner or admin only)"""
+        claims = get_jwt()
+        current_user_id = get_jwt_identity()
+        place = facade.get_place(place_id)
+        if not place:
+            api.abort(404, 'Place not found')
+        # Contrôle d'ownership ou admin
+        if not claims.get('is_admin', False) and place.owner_id != current_user_id:
+            api.abort(403, "Unauthorized action")
         place_data = api.payload
         updated_place = facade.update_place(place_id, place_data)
-        if not updated_place:
-            api.abort(404, 'Place not found')
         return updated_place.to_dict(), 200
 
     @api.doc(security='Bearer')
     @jwt_required()
     def delete(self, place_id):
-        """Delete a place"""
+        """Delete a place (owner or admin only)"""
+        claims = get_jwt()
+        current_user_id = get_jwt_identity()
+        place = facade.get_place(place_id)
+        if not place:
+            api.abort(404, 'Place not found')
+        # Contrôle d'ownership ou admin
+        if not claims.get('is_admin', False) and place.owner_id != current_user_id:
+            api.abort(403, "Unauthorized action")
         success = facade.delete_place(place_id)
         if not success:
             api.abort(404, 'Place not found')
@@ -89,13 +103,19 @@ class PlaceAmenities(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def post(self, place_id):
-        """Add amenity to place"""
+        """Add amenity to place (owner or admin only)"""
+        claims = get_jwt()
+        current_user_id = get_jwt_identity()
+        place = facade.get_place(place_id)
+        if not place:
+            api.abort(404, 'Place not found')
+        # Contrôle d'ownership ou admin
+        if not claims.get('is_admin', False) and place.owner_id != current_user_id:
+            api.abort(403, "Unauthorized action")
         data = api.payload
         amenity_id = data.get('amenity_id')
-        
         if not amenity_id:
             api.abort(400, 'amenity_id is required')
-        
         success = facade.add_amenity_to_place(place_id, amenity_id)
         if success:
             return {'message': 'Amenity added to place'}, 201

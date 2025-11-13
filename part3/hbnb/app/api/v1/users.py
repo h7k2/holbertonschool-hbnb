@@ -35,13 +35,17 @@ class UserList(Resource):
         users = facade.get_all_users()
         return [user.to_dict() for user in users], 200
 
-    @api.doc('create_user')
+    @api.doc('create_user', security='Bearer')
     @api.expect(user_model, validate=True)
     @api.marshal_with(user_response_model, code=201)
+    @jwt_required()  # ← Ajoute cette ligne !
     def post(self):
-        """Register a new user (Public)"""
-        user_data = api.payload
+        """Register a new user (Admin only)"""
+        claims = get_jwt()
+        if not claims.get('is_admin', False):
+            api.abort(403, 'Admin privileges required')
         
+        user_data = api.payload
         # Check if email exists
         if facade.get_user_by_email(user_data['email']):
             api.abort(409, 'Email already registered')

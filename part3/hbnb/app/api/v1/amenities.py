@@ -1,10 +1,10 @@
 from flask_restx import Namespace, Resource, fields
-from app.services.facade import HBnBFacade  # Import direct !
+from flask_jwt_extended import jwt_required, get_jwt
+from app.services.facade import HBnBFacade
 
 api = Namespace('amenities', description='Amenity operations')
-facade = HBnBFacade()  # Instance locale
+facade = HBnBFacade()
 
-# Define the amenity model for input validation and documentation
 amenity_model = api.model('Amenity', {
     'name': fields.String(required=True, description='Name of the amenity')
 })
@@ -14,8 +14,13 @@ class AmenityList(Resource):
     @api.expect(amenity_model, validate=True)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
+    @api.doc(security='Bearer')
+    @jwt_required()
     def post(self):
-        """Register a new amenity"""
+        """Register a new amenity (admin only)"""
+        claims = get_jwt()
+        if not claims.get('is_admin', False):
+            return {'error': 'Admin privileges required'}, 403
         amenity_data = api.payload
         try:
             new_amenity = facade.create_amenity(amenity_data)
@@ -26,7 +31,6 @@ class AmenityList(Resource):
         except ValueError as e:
             return {'error': str(e)}, 400
         except Exception as e:
-            # ✅ AJOUT : Gérer les contraintes UNIQUE
             if 'UNIQUE constraint failed' in str(e):
                 return {'error': f'Amenity with name "{amenity_data.get("name")}" already exists'}, 409
             return {'error': 'Internal server error'}, 500
@@ -61,8 +65,13 @@ class AmenityResource(Resource):
     @api.response(200, 'Amenity updated successfully')
     @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
+    @api.doc(security='Bearer')
+    @jwt_required()
     def put(self, amenity_id):
-        """Update an amenity's information"""
+        """Update an amenity's information (admin only)"""
+        claims = get_jwt()
+        if not claims.get('is_admin', False):
+            return {'error': 'Admin privileges required'}, 403
         amenity_data = api.payload
         try:
             updated_amenity = facade.update_amenity(amenity_id, amenity_data)
