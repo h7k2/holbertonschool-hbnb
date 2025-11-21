@@ -10,16 +10,15 @@
     <header>
         <img src="images/logo.png" alt="HBnB Logo" class="logo">
         <a href="login.html" class="login-button">Login</a>
-        <!-- Navigation bar ici si besoin -->
     </header>
     <main>
-        <!-- Add something to identify the place you're reviewing -->
         <form id="review-form" class="add-review form">
             <h2>Add a Review</h2>
             <label for="review">Your Review:</label>
             <textarea id="review" name="review" required></textarea>
             <label for="rating">Rating:</label>
             <select id="rating" name="rating" required>
+                <option value="" disabled selected hidden>Choisir une note</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
