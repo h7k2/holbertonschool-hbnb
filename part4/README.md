@@ -3,6 +3,38 @@
 This project is the front-end part of the HBnB application (Holberton School).  
 After building the API in previous parts, this section focuses on creating a simple web client using **HTML5**, **CSS3**, and **JavaScript ES6**, fully connected to the back-end via **Fetch API** and **JWT authentication**.
 
+🔧 How to Run the Project
+
+To start the application, you must run Part 3 (Back-End API) first, then Part 4 (Front-End client).
+
+1️⃣ Start the Part 3 API
+
+Go to the Part 3 directory:
+
+cd part3/hbnb
+
+
+Run the API server:
+
+python3 run.py
+
+
+Keep this terminal open.
+
+2️⃣ Start the Part 4 Front-End
+
+Open a new terminal window, then go to the Part 4 directory:
+
+cd part4
+
+
+Run the command to start the front-end server:
+
+python3 -m http.server 8080
+
+
+Your back-end and front-end should now be running together.
+
 ## 🚀 Features
 
 ### 🔐 Login
