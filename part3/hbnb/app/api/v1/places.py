@@ -17,6 +17,8 @@ place_model = api.model('Place', {
 
 @api.route('/')
 class PlaceList(Resource):
+    def options(self):
+        return {}, 200
     @api.expect(place_model, validate=True)
     @api.doc(security='Bearer')
     @jwt_required()
@@ -41,6 +43,8 @@ class PlaceList(Resource):
 @api.route('/<place_id>')
 @api.param('place_id', 'The place identifier')
 class PlaceResource(Resource):
+    def options(self, place_id):
+        return {}, 200
     @api.doc('get_place')
     def get(self, place_id):
         """Get place by ID"""
@@ -85,15 +89,21 @@ class PlaceResource(Resource):
 @api.route('/<place_id>/reviews')
 @api.param('place_id', 'The place identifier')
 class PlaceReviews(Resource):
+    def options(self, place_id):
+        return {}, 200
     @api.doc('get_place_reviews')
     def get(self, place_id):
         """Get all reviews for a place"""
         reviews = facade.get_reviews_by_place(place_id)
+        if reviews is None:
+            reviews = []
         return [review.to_dict() for review in reviews], 200
 
 @api.route('/<place_id>/amenities')
 @api.param('place_id', 'The place identifier')
 class PlaceAmenities(Resource):
+    def options(self, place_id):
+        return {}, 200
     @api.doc('get_place_amenities')
     def get(self, place_id):
         """Get all amenities for a place"""

@@ -169,7 +169,12 @@ class HBnBFacade:
 
     def get_reviews_by_place(self, place_id: str) -> List[Review]:
         """Get all reviews for a place"""
-        return self.review_repo.get_by_attribute('place_id', place_id)
+        result = self.review_repo.get_by_attribute('place_id', place_id)
+        if result is None:
+            return []
+        if isinstance(result, list):
+            return result
+        return [result]
 
     def get_review(self, review_id: str) -> Optional[Review]:
         """Get review by ID"""

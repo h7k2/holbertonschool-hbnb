@@ -19,6 +19,10 @@ def create_app(config_class='config.DevelopmentConfig'):
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
+
+    # Enable CORS for all routes (allow frontend requests)
+    from flask_cors import CORS
+    CORS(app, resources={r"/*": {"origins": "*"}})
     
     # JWT error handlers
     @jwt.unauthorized_loader

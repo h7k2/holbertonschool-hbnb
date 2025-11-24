@@ -171,7 +171,7 @@ async function fetchPlaces() {
             headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const response = await fetch(`${API_BASE_URL}/places`, {
+        const response = await fetch(`${API_BASE_URL}/places/`, {
             headers: headers
         });
 
